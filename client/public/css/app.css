@@ -1,0 +1,137 @@
+#map {
+  height: 450px;
+}
+
+#sidebar {
+  background: rgba(61,64,72,1);
+  background: -moz-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(61,64,72,1)), color-stop(100%, rgba(46,49,57,1)));
+  background: -webkit-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
+  background: -o-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
+  background: -ms-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
+  background: linear-gradient(to bottom, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d4048', endColorstr='#2e3139', GradientType=0 );
+}
+
+.stats p {
+  text-transform:uppercase;
+  font-family: 'Pathway Gothic One', sans-serif;
+}
+
+.mainStat {
+  color: rgb(140, 163, 180);
+  font-size: 36px;
+}
+
+.normalStat {
+  color: rgb(179, 172, 153);
+  font-size: 24px;
+}
+
+.mainStatValue {
+  color: #FFFFFF;
+  font-size: 64px;
+}
+
+.normalStatValue {
+  color: #FFFFFF;
+  font-size: 48px;
+}
+
+.dayContainer {
+  border: 1px solid red;
+}
+
+.elevationChart {
+  height: 200px;
+}
+
+.dayTile {
+  height: 60px;
+  border: 1px solid #2d3038;
+  padding: 2px;
+  transition: all 0.1s;
+  -webkit-transition: all 0.1s; /* Safari */
+}
+
+.dayTile:hover {
+  padding: 0px;
+}
+
+
+.dayTile p {
+  text-transform:uppercase;
+  font-family: 'Pathway Gothic One', sans-serif;
+}
+
+.dayTile .date {
+  color: #CF5E34;
+  margin-left: 5px;
+  margin-top: -5px;
+}
+
+.dayTile .day {
+  color: rgb(179, 172, 153);
+  font-size: 24px;
+  margin-left: 5px;
+}
+
+.dayTile .noPadding {
+  padding: 0px;
+}
+
+.dayTileInner {
+  color: white;
+  background: #2790B0;
+  background: -moz-linear-gradient(top, rgba(61,64,72,1) 0%, #2790B0 100%);
+  background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(61,64,72,1)), color-stop(100%, #2790B0));
+  background: -webkit-linear-gradient(top, rgba(61,64,72,1) 0%, #2790B0 100%);
+  background: -o-linear-gradient(top, rgba(61,64,72,1) 0%, #2790B0 100%);
+  background: -ms-linear-gradient(top, rgba(61,64,72,1) 0%, #2790B0 100%);
+  background: linear-gradient(to bottom, rgba(61,64,72,1) 0%, #2790B0 100%);
+
+  width: 100%;
+  height: 100%;
+}
+
+.dayTileInner:hover {
+  background: #2790B0;
+}
+
+.dayStats {
+  padding-top: 5px;
+}
+
+.carousel-control {
+  width: 30px;
+}
+.carousel-control .icon-prev {
+  margin-top: -22px
+}
+.carousel-control .icon-next {
+  margin-top: -22px;
+  width: 7px;
+}
+.carousel-indicators {
+  bottom: -30px;
+}
+
+/*.col-md-1-714 {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}*/
+
+
+@media (min-width: 992px) {
+  .col-md-1-714 {
+    float: left;
+    width: 14.28571428571429%;
+  }
+
+  .col-md-offset-0-857 {
+    margin-left: 7.142857142857143%;
+  }
+}
+

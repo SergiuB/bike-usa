@@ -1,0 +1,13 @@
+{
+	"name": "biketour",
+	"description": "Bike touring real-time monitoring app",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.x",
+		"express-resource": "1.x",
+		"jade": "1.0.2",
+		"lazy": "1.0.11",
+		"q": "0.9.7"
+	}
+}

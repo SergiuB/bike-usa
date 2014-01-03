@@ -1,0 +1,30 @@
+body {
+  padding-top: 70px;
+  padding-bottom: 30px;
+  background-color: #2d3038;
+}
+
+.theme-dropdown .dropdown-menu {
+  display: block;
+  position: static;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.navbar {
+    font-family: 'Carrois Gothic SC', sans-serif;
+}
+
+.progress {
+  background-color: rgb(82,20,21);
+  background-image: none;
+}
+
+p {
+  margin: 0;
+}
+
+

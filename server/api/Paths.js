@@ -22,7 +22,7 @@ var readPoints = function(pointsFileName) {
 };
 
 exports.show = function(req, res) {
-    readPoints('./resources/points.txt').then(function(points) {
+    readPoints('./server/resources/points.txt').then(function(points) {
 
         res.writeHead(200, {
             'Content-Type': 'application/json'

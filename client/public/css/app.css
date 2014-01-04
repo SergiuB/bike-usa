@@ -1,5 +1,6 @@
 #map {
   height: 450px;
+  margin-bottom: 20px;
 }
 
 #sidebar {
@@ -13,9 +14,29 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d4048', endColorstr='#2e3139', GradientType=0 );
 }
 
+.mapAndChart {
+  padding-right: 30px;
+}
+
 .stats p {
   text-transform:uppercase;
   font-family: 'Pathway Gothic One', sans-serif;
+}
+
+.projectTitle {
+  font-family: 'Chivo';
+  font-weight: 900; 
+  font-style:italic;
+  color: white;
+  font-size: 48px;
+}
+
+.projectTitleSmall {
+  color: rgb(140, 163, 180);
+  font-family: 'Chivo';
+  font-weight: 400; 
+  font-style:italic;
+  font-size: 24px;
 }
 
 .mainStat {
@@ -38,8 +59,8 @@
   font-size: 48px;
 }
 
-.dayContainer {
-  border: 1px solid red;
+.carouselContainer {
+  padding-top: 10px;
 }
 
 .elevationChart {

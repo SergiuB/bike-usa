@@ -11,7 +11,7 @@ angular.module('myApp.services').service('mapService', ['mapFeatureConfig',
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
 
-    var MY_MAPTYPE_ID = 'custom_style';
+    var ABSTRACTMAP = 'abstractmap';
 
     me.map = new google.maps.Map(document.getElementById('map'), {
       zoom: minZoomLevel,
@@ -23,9 +23,9 @@ angular.module('myApp.services').service('mapService', ['mapFeatureConfig',
       streetViewControl: false,
       overviewMapControl: false,
       mapTypeControlOptions: {
-        mapTypeIds: [google.maps.MapTypeId.ROADMAP, MY_MAPTYPE_ID]
+        mapTypeIds: [ABSTRACTMAP, google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.TERRAIN]
       },
-      mapTypeId: google.maps.MapTypeId.ROADMAP /*MY_MAPTYPE_ID*/
+      mapTypeId: ABSTRACTMAP
     });
 
     // Bounds for North America
@@ -62,15 +62,22 @@ angular.module('myApp.services').service('mapService', ['mapFeatureConfig',
     });
 
     var styledMapOptions = {
-      name: 'Custom Style'
+      name: 'Abstract'
     };
 
     var customMapType = new google.maps.StyledMapType(mapFeatureConfig, styledMapOptions);
 
-    me.map.mapTypes.set(MY_MAPTYPE_ID, customMapType);
+    me.map.mapTypes.set(ABSTRACTMAP, customMapType);
 
-    // var ctaLayer = new google.maps.KmlLayer('https://sites.google.com/site/sergiukmlfiles/kml-files/us_states_9.kml?attredirects=0&d=1');
-    // ctaLayer.setMap(map);
+    var ctaLayer = new google.maps.KmlLayer('https://sites.google.com/site/sergiukmlfiles/kml-files/us_states_8.kml?attredirects=0&d=1');
+    ctaLayer.setMap(me.map);
+
+    google.maps.event.addListener( me.map, 'maptypeid_changed', function() { 
+        if (me.map.getMapTypeId() !== ABSTRACTMAP)
+          ctaLayer.setMap(null);
+        else 
+          ctaLayer.setMap(me.map);
+    } );
 
     me.createTargetMarker = function(options) {
       var pos = (options) ? options.pos : undefined;

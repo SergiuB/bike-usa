@@ -1,6 +1,8 @@
 div.container.theme-showcase
     div.row
-      div.col-xs-12.col-sm-9
+      div.col-xs-12.col-sm-9.mapAndChart
+        p.projectTitle Follow my trail
+        p.projectTitleSmall As I cross the USA from east to west on my bike
         #map.row(ng-controller='MapCtrl')
         .elevationChart.row(id="elevationChart", ng-controller='ChartCtrl')
       #sidebar.col-xs-6.col-sm-3.sidebar-offcanvas.text-center.stats
@@ -19,7 +21,7 @@ div.container.theme-showcase
         p.normalStatValue {{daysLeft}}
         p.normalStat Money spent so far($)
         p.normalStatValue 4262
-    div.row(ng-controller='DayCarouselCtrl')
+    div.row.carouselContainer(ng-controller='DayCarouselCtrl')
       div.col-md-12(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
         carousel.row
           slide(ng-repeat='slide in slides', active='slide.active')

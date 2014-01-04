@@ -124,7 +124,7 @@ app.controller('MapCtrl', ['$scope', '$rootScope', 'estimationService', 'mapServ
         step += 1;
         if (step > numSteps) {
           clearInterval(interval);
-          var currentMarker = mapService.createBikeMarker({
+          var currentMarker = mapService.createTargetMarker({
             animation: google.maps.Animation.DROP,
             pos: latLongCoordinates[totalCoordsSoFar]
           });
@@ -206,7 +206,7 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
           })
         }],
         title: {
-          text: 'Elevation Profile'
+          text: '',
         },
         xAxis: {
           events: {
@@ -217,6 +217,26 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
               } else {
                 isReset = false;
               }
+            }
+          },
+          title: {
+            text: 'Distance (KM)',
+            style: {
+              fontFamily: '"Carrois Gothic SC", sans-serif',
+              textTransform: 'uppercase',
+              color: 'white',
+              fontSize: '16px'
+            }
+          }
+        },
+        yAxis: {
+          title: {
+            text: 'Elevation (m)',
+            style: {
+              fontFamily: '"Carrois Gothic SC", sans-serif',
+              textTransform: 'uppercase',
+              color: 'white',
+              fontSize: '16px'
             }
           }
         },
@@ -289,38 +309,6 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
     });
   }
 ]);
-
-// app.controller('DayCtrl', ['$scope', '$rootScope', 'pointsService',
-//   function($scope, $rootScope, pointsService) {
-//     $rootScope.$on('estimationsComputed', function(ev, dayEstimation) {
-//       var elevationGains = pointsService.getElevationGainBetweenPoints(dayEstimation);
-//       var days = $scope.days = [];
-//       for (var i = 0; i < dayEstimation.length; i++) {
-//         days.push({
-//           index: i + 1,
-//           distance: i ? dayEstimation[i].distStart - dayEstimation[i - 1].distStart : dayEstimation[i].distStart,
-//           elevationGain: elevationGains[i],
-//           dayEstimation: dayEstimation[i],
-//           prevDayEstimation: dayEstimation[i - 1]
-//         });
-//       }
-
-//       $scope.mouseOverDay = function(day) {
-//         $rootScope.$emit('mouseOverDay', day);
-//       };
-
-//       $scope.mouseOutDay = function(day) {
-//         $rootScope.$emit('mouseOutDay', day);
-//       };
-//       $scope.$watch('days', function () {
-//         $(".owl-carousel").owlCarousel({
-//           items: 7
-//         });
-//       });
-//     });
-
-//   }
-// ]);
 
 app.controller('DayCarouselCtrl', ['$scope', '$rootScope',
   function($scope, $rootScope) {

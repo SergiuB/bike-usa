@@ -46,7 +46,7 @@ angular.module('myApp.services').service('estimationService', function($q, $root
   this.computeDayEstimation = function(points) {
     var timeThisDay = 0,
       MAX_TIME_PER_DAY = 7 * 60, //min
-      POWER = 140, //W
+      POWER = 120, //W
       lastPoint,
       curPoint;
     endOfDayPoints = [];

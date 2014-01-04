@@ -225,7 +225,7 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
               fontFamily: '"Carrois Gothic SC", sans-serif',
               textTransform: 'uppercase',
               color: 'white',
-              fontSize: '16px'
+              fontSize: '12px'
             }
           }
         },
@@ -236,7 +236,7 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
               fontFamily: '"Carrois Gothic SC", sans-serif',
               textTransform: 'uppercase',
               color: 'white',
-              fontSize: '16px'
+              fontSize: '12px'
             }
           }
         },

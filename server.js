@@ -14,6 +14,7 @@ app.configure(function(){
     layout: false
   });
   app.use(express.bodyParser());
+  app.use(express.compress());
   app.use(express.methodOverride());
   app.use(express.static(__dirname + '/client/public'));
   app.use(app.router);

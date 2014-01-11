@@ -1,0 +1,28 @@
+{
+	"undef": true,
+	"browser": true,
+	"node": true,
+	"jquery": true,
+	"globals": {
+		"angular": false,
+		"google": false,
+		"app": false
+	},
+	"predef": [
+		/* browser global methods */
+		"confirm",
+		"alert",
+
+		/* jasmine */
+		"jasmine",
+		"spyOn",
+		"it",
+		"console",
+		"describe",
+		"expect",
+		"beforeEach",
+		"waits",
+		"waitsFor",
+		"runs"
+	]
+}

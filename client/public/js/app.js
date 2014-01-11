@@ -4,6 +4,10 @@ var app = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.dir
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
       
     $routeProvider.
+      when('/playground/testcoordinates', {
+        templateUrl: 'partials/testCoordinates',
+        controller: "TestCoordinatesCtrl"
+      }).
       when('/', {
         templateUrl: 'partials/index',
         controller: "IndexCtrl"

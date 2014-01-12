@@ -15,11 +15,11 @@ div.container.theme-showcase
         p.normalStatValue {{currentDistance | number:0}}
         p.normalStat Average distance/day (km)
         p.normalStatValue {{totalDistance / daysLeft | number:0}}
-        p.normalStat Remaining distance(km)
+        p.normalStat Remaining distance (km)
         p.normalStatValue {{totalDistance - currentDistance | number:0}}
         p.normalStat Estimated days left
         p.normalStatValue {{daysLeft}}
-        p.normalStat Money spent so far($)
+        p.normalStat Money spent so far ($)
         p.normalStatValue 4262
     div.row.carouselContainer(ng-controller='DayCarouselCtrl')
       div.col-md-12(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")

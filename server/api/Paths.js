@@ -1,41 +1,61 @@
 var Q = require("q"),
     fs = require("fs"),
-    Lazy = require("lazy");
+    Lazy = require("lazy"),
+    db = require('../db/db'),
+    async = require('async'), 
+    points = null;
 
-var readPoints = function(pointsFileName) {
-    var deferred = Q.defer(),
-        lineStr, lineSplit, points = [];
+var readDbPoints = function (callback) {
+    if (points) {
+        return callback(null, points);
+    }
+    
+    console.log('Reading points from DB...');
 
-    new Lazy(fs.createReadStream(pointsFileName))
-        .lines
-        .forEach(function(line) {
-            lineStr = line.toString();
-            lineSplit = lineStr.split(",");
-            points.push(lineSplit.map(function(elem) {
-                return parseFloat(elem);
-            }));
-        }).on('pipe', function() {
-            deferred.resolve(points);
-        });
+    if (!db.isConnected()) {
+        return callback(new Error('No DB Connection'));
+    }
 
-    return deferred.promise;
+    var dbConnection = db.connection;
+
+    db.PointModel.find({}, function (err, pointModels) {
+        if (err) return callback(err);
+
+        console.log('Found ' + pointModels.length + ' points.');
+        // cache result
+        points = pointModels;
+
+        callback(null, pointModels);
+    });
 };
 
 exports.show = function(req, res) {
-    readPoints('./server/resources/points.txt').then(function(points) {
+    readDbPoints(function (err, pointModels) {
+        if (err) {
+            res.status(500);
+            url = req.url;
+            res.render('500.jade', { 
+                title:'500: Internal Server Error', 
+                error: err, 
+                url: url
+            });
+
+            return;
+        }
 
         res.writeHead(200, {
             'Content-Type': 'application/json'
         });
+
         res.end(JSON.stringify({
             id: req.params.path,
-            points: points.map(function(point) {
+            points: pointModels.map(function (point) {
                 return {
-                    lat: point[0],
-                    long: point[1],
-                    distPrev: point[2],
-                    distStart: point[3],
-                    elevation: point[4]
+                    lat: point.latitude,
+                    long: point.longitude,
+                    distPrev: point.distPrev,
+                    distStart: point.distStart,
+                    elevation: point.elevation
                 };
             })
         }));

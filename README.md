@@ -16,6 +16,11 @@ Download `bike-usa` and install dependency modules:
 
 On Windows npm install will an error because it tries to run bower install as a postinstall script. Just ignore and run manually bower install after.
 
+Install MongoDB using instructions from http://docs.mongodb.org/manual/installation/
+
+Setup DB for the first time:
+    $ node dbsetup
+
 ### Run local
 
 	$ node server

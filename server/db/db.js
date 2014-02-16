@@ -196,20 +196,8 @@ var isConnected = function () {
 	return (dbConnection.readyState === 1);
 };
 
-var PointSchema = new Schema({
-	latitude: { type: Number, min: -90, max: 90 },
-	longitude: { type: Number, min: -180, max: 180 },
-	distPrev: Number,
-	distStart: Number,
-	elevation: Number
-});
 
-//var PointArraySchema = new Schema({
-//	points: [PointSchema]
-//});
 
-var PointModel = dbConnection.model('PointModel', PointSchema);
-//var PointArrayModel = dbConnection.model('PointArrayModel', PointArraySchema);
 
 // setup mongoose event handlers
 setupEventHandlers();
@@ -218,6 +206,5 @@ module.exports = {
 	connect : connect,
 	disconnect : disconnect,
 	isConnected : isConnected,
-	connection : dbConnection,
-	PointModel : PointModel
+	connection : dbConnection
 };

@@ -2,6 +2,7 @@ var express = require('express'),
   Resource = require('express-resource'),
   routes = require('./server/routes'),
   db = require('./server/db/db'),
+  fs = require("fs"),
   app = express();
 // Load configurations
 var env = process.env.NODE_ENV || 'development',
@@ -57,13 +58,19 @@ app.configure(function() {
   app.use(app.router);
 });
 
+// Bootstrap models
+var fs = require("fs");
+var modelsPath = './server/models';
+fs.readdirSync(modelsPath).forEach(function (file) {
+    require(modelsPath + '/' + file);
+});
+
 app.get('/', routes.index);
 app.get('/partials/:name', routes.partials);
 
-app.post('/api/admin/kmlUpload', function(req, res) {
-  console.log(req.files);
-  res.send("well done");
-});
+
+var pathsNew = require('./server/api/PathsNew.js');
+app.post('/api/admin/kmlUpload', pathsNew.uploadKml);
 
 // JSON API
 app.resource('api/paths', require('./server/api/Paths.js'));

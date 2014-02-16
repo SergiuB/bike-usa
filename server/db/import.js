@@ -10,6 +10,15 @@ var mongoose = require('mongoose'),
     fs = require("fs"),
     Lazy = require("lazy");
 
+// Bootstrap models
+var fs = require("fs");
+var modelsPath = __dirname + '/../models';
+fs.readdirSync(modelsPath).forEach(function (file) {
+    require(modelsPath + '/' + file);
+});
+
+var PointModel = db.connection.model('PointModel');
+
 var readPoints = function (pointsFileName) {
     var deferred = Q.defer(),
         lineStr, lineSplit, points = [];
@@ -55,7 +64,7 @@ var importPoints = function (filePath, callback) {
 
     readPoints(filePath).then(function (points) {
         var points = points.map(function (point) {
-            var pointModel = new db.PointModel();
+            var pointModel = new PointModel();
 
             pointModel.latitude = point[0];
             pointModel.longitude = point[1];

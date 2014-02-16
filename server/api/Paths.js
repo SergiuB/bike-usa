@@ -3,6 +3,7 @@ var Q = require("q"),
     Lazy = require("lazy"),
     db = require('../db/db'),
     async = require('async'), 
+    PointModel = db.connection.model('PointModel');
     points = null;
 
 var readDbPoints = function (callback) {
@@ -18,7 +19,7 @@ var readDbPoints = function (callback) {
 
     var dbConnection = db.connection;
 
-    db.PointModel.find({}, function (err, pointModels) {
+    PointModel.find({}, function (err, pointModels) {
         if (err) return callback(err);
 
         console.log('Found ' + pointModels.length + ' points.');

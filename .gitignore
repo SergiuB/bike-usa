@@ -1,6 +1,7 @@
 
 node_modules
 client/public/components
+uploads
 
 # SublimeText project files
 *.sublime-workspace

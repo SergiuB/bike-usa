@@ -1,0 +1,16 @@
+
+div.navbar.navbar-fixed-top.navbar-inverse(role="navigation")
+  div.container
+    div.navbar-brand Administration
+
+div.container.theme-showcase
+    div.row
+      div.well
+        label Upload KML track:
+        input(type="file", ng-file-select="onFileSelect($files)")
+        div.progress(ng-show="progress >= 0")
+          div(ng-class="{'progress-bar': true, 'progress-bar-danger': uploadError, 'progress-bar-success': !uploadError}", ng-style="{ 'width': progress + '%' }")
+            span(ng-show="success") OK
+            span(ng-show="uploadError") Error
+        div(ng-show="uploadError") {{uploadError}}
+

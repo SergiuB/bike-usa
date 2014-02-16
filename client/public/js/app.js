@@ -1,6 +1,13 @@
 'use strict';
 // Declare app level module which depends on filters, and services
-var app = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.directives', /*'highcharts-ng', */'ui.bootstrap', 'ngResource', 'ngRoute']).
+var app = angular.module('myApp', [
+    'myApp.filters', 
+    'myApp.services', 
+    'myApp.directives', 
+    'ui.bootstrap',
+    'ngResource',
+    'ngRoute',
+    'angularFileUpload']).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
       
     $routeProvider.
@@ -11,6 +18,10 @@ var app = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.dir
       when('/', {
         templateUrl: 'partials/main',
         controller: "MainCtrl"
+      }).
+      when('/admin', {
+        templateUrl: 'partials/admin',
+        controller: "AdminCtrl"
       }).
       otherwise({
         redirectTo: '/'

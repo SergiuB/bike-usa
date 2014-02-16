@@ -6,6 +6,7 @@ exports.index = function(req, res){
 
 exports.create = function(req, res){
     var coordinate = req.body;
+    console.log('req.body: ' + req.body);
     coordinates.push(req.body);
     console.log('Added coordinate: ' + JSON.stringify(coordinate));
     res.send(coordinate);

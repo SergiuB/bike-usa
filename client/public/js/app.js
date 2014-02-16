@@ -9,8 +9,8 @@ var app = angular.module('myApp', ['myApp.filters', 'myApp.services', 'myApp.dir
         controller: "TestCoordinatesCtrl"
       }).
       when('/', {
-        templateUrl: 'partials/index',
-        controller: "IndexCtrl"
+        templateUrl: 'partials/main',
+        controller: "MainCtrl"
       }).
       otherwise({
         redirectTo: '/'

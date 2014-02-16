@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('IndexCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'PathModel',
+app.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'PathModel',
   function($scope, $http, $rootScope, estimationService, PathModel) {
     PathModel.get({
       id: 1

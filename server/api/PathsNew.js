@@ -1,6 +1,7 @@
 var Q = require("q"),
 	Lazy = require("lazy"),
 	db = require(__dirname + '/../db/db'),
+	elevationService = require(__dirname + '/../elevationService'),
 	Path = db.connection.model('Path');
 
 function parseCoordinates(coordList) {
@@ -28,7 +29,8 @@ function getSegmentsFromKML(kmlPlacemarks) {
 			});
 		}
 	});
-	return segments;
+	var promises = segments.map(elevationService.processSegment);
+	return Q.allSettled(promises);
 }
 
 exports.uploadKml = function(req, res) {
@@ -45,18 +47,22 @@ exports.uploadKml = function(req, res) {
 				if (!placemarks || !placemarks.length) {
 					res.send(500, 'No placemarks found in KML file');
 				} else {
-					var path = new Path({
-						name: result.kml.Document[0].name[0],
-						segments: getSegmentsFromKML(placemarks)
-					});
-					path.save(function(err) {
-						if (err) {
-							res.send(500, 'err');
-						}
-						else {
-							res.send(200);
-						}
-					});
+					getSegmentsFromKML(placemarks).then(function(results){
+						var path = new Path({
+							name: result.kml.Document[0].name[0],
+							segments: results.map(function(result){
+								return result.value;
+							})
+						});
+						path.save(function(err) {
+							if (err) {
+								res.send(500, 'err');
+							}
+							else {
+								res.send(200);
+							}
+						});
+					})
 					
 				}
 			}

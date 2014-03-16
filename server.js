@@ -1,3 +1,5 @@
+require("console-stamp")(console, "HH:MM:ss.l");
+
 var express = require('express'),
   Resource = require('express-resource'),
   routes = require('./server/routes'),

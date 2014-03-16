@@ -12,7 +12,10 @@ function parseCoordinates(coordList) {
 		if (lineStr.trim()) {
 			lineSplit = lineStr.split(',').map(parseFloat);
 			if (lineSplit.length === 3)
-				points.push(lineSplit);
+				points.push({
+					latitude: lineSplit[1],
+					longitude: lineSplit[0]
+				});
 		}
 	});
 
@@ -47,23 +50,22 @@ exports.uploadKml = function(req, res) {
 				if (!placemarks || !placemarks.length) {
 					res.send(500, 'No placemarks found in KML file');
 				} else {
-					getSegmentsFromKML(placemarks).then(function(results){
+					getSegmentsFromKML(placemarks).then(function(results) {
 						var path = new Path({
 							name: result.kml.Document[0].name[0],
-							segments: results.map(function(result){
+							segments: results.map(function(result) {
 								return result.value;
 							})
 						});
 						path.save(function(err) {
 							if (err) {
 								res.send(500, 'err');
-							}
-							else {
+							} else {
 								res.send(200);
 							}
 						});
 					})
-					
+
 				}
 			}
 		});

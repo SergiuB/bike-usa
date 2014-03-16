@@ -18,7 +18,9 @@
         "mongoose" : "3.8.5",
         "async" : "0.2.10",
         "xml2js" : "0.4.1",
-		"googlemaps": "0.1.9"
+		"googlemaps": "0.1.9",
+		"underscore": "1.6.0",
+		"console-stamp": "latest"
 	},
 	"scripts": {
 		"nopostinstall": "./node_modules/.bin/bower install"

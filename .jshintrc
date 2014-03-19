@@ -23,6 +23,7 @@
 		"describe",
 		"expect",
 		"beforeEach",
+		"afterEach",
 		"waits",
 		"waitsFor",
 		"runs"

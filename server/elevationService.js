@@ -1,13 +1,31 @@
 var Lazy = require("lazy"),
 	Q = require("q"),
 	fs = require("fs"),
-	_ = require("underscore");
+	_ = require("underscore"),
+	gm = require('googlemaps'),
+	CallSequentializer = require('./callSequentializer'),
+	cs = new CallSequentializer('getElevations', 200);
+
+var LOCATIONS_PER_REQUEST = 100;
 
 var toRad = function(degrees) {
 	return degrees * Math.PI / 180;
 };
 
-var getDistance = function(lat1, lon1, lat2, lon2) {
+/**
+ * Used by unit tests to set up some test doubles
+ * @param  {[type]} gmModule
+ * @param  {[type]} locPerRequests
+ * @param  {[type]} callSequentializer
+ * @return {[type]}
+ */
+exports.init = function(gmModule, locPerRequests, callSequentializer) {
+	gmModule && (gm = gmModule);
+	LOCATIONS_PER_REQUEST && (LOCATIONS_PER_REQUEST = locPerRequests);
+	callSequentializer && (cs = callSequentializer);
+};
+
+exports.getDistance = function(lat1, lon1, lat2, lon2) {
 	var R = 6371; // km
 	var dLat = toRad(lat2 - lat1);
 	var dLon = toRad(lon2 - lon1);
@@ -19,16 +37,16 @@ var getDistance = function(lat1, lon1, lat2, lon2) {
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	var d = R * c;
 
-	return d;
+	return Math.floor(d * 1000); // transform in meters to avoid floating point calculation issues
 };
 
-var enhanceLocationData = function(segment) {
+exports.enhanceLocationData = function(segment) {
 	var prevLat, prevLong, latitude, longitude,
 		distPrev = 0,
 		distStart = 0;
 	segment.locations.forEach(function(location) {
 		if (prevLat && prevLong) {
-			distPrev = getDistance(prevLat, prevLong, location.latitude, location.longitude);
+			distPrev = exports.getDistance(prevLat, prevLong, location.latitude, location.longitude);
 		}
 
 		distStart += distPrev;
@@ -39,19 +57,15 @@ var enhanceLocationData = function(segment) {
 	});
 };
 
-exports.testGetElevations = function(coord) {
-	return 111;
-};
+
 
 exports.processSegment = function(segment, segIndex) {
 	console.log('Started processing segment ' + segIndex);
 
-	enhanceLocationData(segment);
+	exports.enhanceLocationData(segment);
 
 	var deferred = Q.defer();
-	var LOCATIONS_PER_REQUEST = 100;
-	var REQUESTS_PER_BATCH = 1;
-	var coordIntervals = splitCoordsInIntervals(segment.locations, 1 /*km*/ );
+	var coordIntervals = exports.groupCoordsInIntervals(segment.locations, 1000 /*m*/ );
 	var coordsForElevation = coordIntervals.map(function(coordInterval) {
 		return coordInterval[coordInterval.length - 1];
 	});
@@ -59,7 +73,7 @@ exports.processSegment = function(segment, segIndex) {
 	var promises = [];
 
 	for (var i = 0; i < coordsForElevation.length; i += LOCATIONS_PER_REQUEST) {
-		promises.push(enqueueFn(getElevations.bind(null, coordsForElevation.slice(i, Math.min(i + LOCATIONS_PER_REQUEST, coordsForElevation.length)))));
+		promises.push(cs.enqueueCall(exports.getElevations.bind(null, coordsForElevation.slice(i, Math.min(i + LOCATIONS_PER_REQUEST, coordsForElevation.length)))));
 	}
 
 	console.log('Waiting for ' + promises.length + ' elevation requests to complete for segment ' + segIndex);
@@ -82,57 +96,8 @@ exports.processSegment = function(segment, segIndex) {
 	return deferred.promise;
 };
 
-var counter = 0;
-
-var callQueue = [];
-var processingCallQueue = false;
-
-var enqueueFn = function(fn) {
-	var deferred = Q.defer();
-	callQueue.push({
-		fn: fn,
-		deferred: deferred
-	});
-	if (!processingCallQueue) {
-		console.log('Started process call queue.');
-		processingCallQueue = true;
-		processCallQueue();
-	}
-	return deferred.promise;
-};
-
-var processCallQueue = function() {
-	if (!callQueue.length) {
-		processingCallQueue = false;
-		console.log('Done processing call queue.');
-	} else {
-		var fnData = callQueue.shift();
-		fnData.fn.apply(null).then(function(result) {
-			fnData.deferred.resolve(result);
-		}, function(error) {
-			fnData.deferred.reject(error);
-		});
-		setTimeout(processCallQueue, 200);
-	}
-};
-
-// var getElevations = function(coords) {
-//     var deferred = Q.defer(),
-//         elevations = [];
-
-//     for (var i = 0; i < coords.length; i++) {
-//         elevations.push(counter++);
-//     }
-//     console.log('Obtained elevations for ' + coords.length +
-//         ' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
-//         ' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']');
-//     deferred.resolve(elevations);
-//     return deferred.promise;
-// };
-
-var getElevations = function(coords) {
+exports.getElevations = function(coords) {
 	var deferred = Q.defer(),
-		gm = require('googlemaps'),
 		elevations = [],
 		coordStrings = coords.map(function(coord) {
 			return coord.latitude + ',' + coord.longitude;
@@ -160,7 +125,7 @@ var getElevations = function(coords) {
 	return deferred.promise;
 };
 
-var splitCoordsInIntervals = function(coords, intervalDistanceInKm) {
+exports.groupCoordsInIntervals = function(coords, intervalDistanceInM) {
 	var distanceBuffer = 0,
 		coordIntervals = [],
 		dataPoint,
@@ -171,29 +136,11 @@ var splitCoordsInIntervals = function(coords, intervalDistanceInKm) {
 	for (var i = 1; i < coords.length; i++) {
 		dataPoint = coords[i];
 		distanceBuffer += dataPoint.distPrev;
-		if (distanceBuffer > intervalDistanceInKm || i === coords.length - 1) {
+		if (distanceBuffer >= intervalDistanceInM || i === coords.length - 1) {
 			coordIntervals.push(coords.slice(firstIndex, i + 1));
 			distanceBuffer = 0;
 			firstIndex = i + 1;
 		}
 	}
 	return coordIntervals;
-};
-var createElevationRequests = function(coords, maxLocationsPerRequest) {
-	var elevationRequestFns = [],
-		lastIndex = 0,
-		fn;
-	for (var i = 0; i < coords.length; i += maxLocationsPerRequest) {
-		fn = _.throttle(getElevations.bind(null, coords.slice(i, Math.min(i + maxLocationsPerRequest, coords.length))), 1000);
-		elevationRequestFns.push(fn);
-	}
-	return elevationRequestFns;
-};
-
-var executeMultipleRequests = function(requestFns) {
-	var promises = [];
-	for (var i = 0; i < requestFns.length; i++) {
-		promises.push(requestFns[i]());
-	}
-	return Q.allSettled(promises);
 };

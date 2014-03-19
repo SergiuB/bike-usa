@@ -32,7 +32,8 @@
 		"grunt-contrib-jasmine": "~0.6.1",
 		"grunt-cli": "~0.1.13",
 		"grunt-jasmine-node": "~0.2.1",
-		"browserify": "~3.30.1"
+		"browserify": "~3.30.1",
+		"sinon": "latest"
 	},
 	"scripts": {
 		"nopostinstall": "./node_modules/.bin/bower install"

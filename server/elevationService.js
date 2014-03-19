@@ -39,6 +39,10 @@ var enhanceLocationData = function(segment) {
 	});
 };
 
+exports.testGetElevations = function(coord) {
+	return 111;
+};
+
 exports.processSegment = function(segment, segIndex) {
 	console.log('Started processing segment ' + segIndex);
 
@@ -54,89 +58,27 @@ exports.processSegment = function(segment, segIndex) {
 
 	var promises = [];
 
-	// var addPromise = function(startIndex, endIndex, deffered) {
-	// 	deferred = deferred || Q.defer();
-	// 	if (startIndex >= coordsForElevation.length)
-	// 		deferred.resolve();
-	// 	else {
-	// 		endIndex = Math.min(endIndex, coordsForElevation.length);
-	// 		setTimeout(function() {
-	// 			promises.push(getElevations(coordsForElevation.slice(startIndex, endIndex)));
-	// 			addPromise(endIndex, endIndex + LOCATIONS_PER_REQUEST, deferred);
-	// 		}, 1000);
-	// 	}
-	// 	return deferred.promise;
-	// };
-
 	for (var i = 0; i < coordsForElevation.length; i += LOCATIONS_PER_REQUEST) {
 		promises.push(enqueueFn(getElevations.bind(null, coordsForElevation.slice(i, Math.min(i + LOCATIONS_PER_REQUEST, coordsForElevation.length)))));
 	}
 
 	console.log('Waiting for ' + promises.length + ' elevation requests to complete for segment ' + segIndex);
 
-		Q.allSettled(promises).then(function(results) {
-			var values = [];
-			results = results.forEach(function(result) {
-				values = values.concat(result.value);
-			});
-
-			var index = 0;
-			for (var i = 0; i < coordIntervals.length; i++) {
-				var interval = coordIntervals[i];
-				index += interval.length;
-				segment.locations[index - 1].elevation = values[i];
-			}
-			console.log('Finished processing segment ' + segIndex);
-			deferred.resolve(segment);
+	Q.allSettled(promises).then(function(results) {
+		var values = [];
+		results = results.forEach(function(result) {
+			values = values.concat(result.value);
 		});
-	
 
-	// var executeRequestsInBatches = function(elevationRequestFns, countPerBatch) {
-	//     var deferred = Q.defer();
-	//     var allResults = [];
-	//     var executeBatch = function(startIndex, countPerBatch, deferred) {
-	//         var isLastBatch,
-	//             endIndex = startIndex + countPerBatch;
-	//         if (endIndex > elevationRequestFns.length) {
-	//             isLastBatch = true;
-	//             endIndex = elevationRequestFns.length;
-	//         }
-	//         var batch = elevationRequestFns.slice(startIndex, endIndex);
-	//         if (isLastBatch) {
-	//             executeMultipleRequests(batch).then(function(results) {
-	//                 var values = [];
-	//                 results = results.forEach(function(result) {
-	//                     values = values.concat(result.value);
-	//                 });
-	//                 allResults = allResults.concat(values);
-	//                 deferred.resolve(allResults);
-	//             });
-	//         } else {
-	//             executeMultipleRequests(batch).then(function(results) {
-	//                 var values = [];
-	//                 results = results.forEach(function(result) {
-	//                     values = values.concat(result.value);
-	//                 });
-	//                 allResults = allResults.concat(values);
-	//                 setTimeout(function() {
-	//                     executeBatch(startIndex + countPerBatch, countPerBatch, deferred);
-	//                 }, 1000);
-	//             });
-	//         }
-	//     };
-	//     executeBatch(0, countPerBatch, deferred);
-	//     return deferred.promise;
-	// };
-	// executeRequestsInBatches(elevationRequestFns, REQUESTS_PER_BATCH).then(function(result) {
-	//     var index = 0;
-	//     for (var i = 0; i < coordIntervals.length; i++) {
-	//         var interval = coordIntervals[i];
-	//         index += interval.length;
-	//         segment.locations[index - 1].push(result[i]);
-	//     };
-	//     console.log('Finished processing segment ' + segIndex);
-	//     deferred.resolve(segment);
-	// });
+		var index = 0;
+		for (var i = 0; i < coordIntervals.length; i++) {
+			var interval = coordIntervals[i];
+			index += interval.length;
+			segment.locations[index - 1].elevation = values[i];
+		}
+		console.log('Finished processing segment ' + segIndex);
+		deferred.resolve(segment);
+	});
 	return deferred.promise;
 };
 
@@ -145,10 +87,10 @@ var counter = 0;
 var callQueue = [];
 var processingCallQueue = false;
 
-var enqueueFn = function (fn) {
+var enqueueFn = function(fn) {
 	var deferred = Q.defer();
 	callQueue.push({
-		fn:fn,
+		fn: fn,
 		deferred: deferred
 	});
 	if (!processingCallQueue) {
@@ -174,50 +116,49 @@ var processCallQueue = function() {
 	}
 };
 
+// var getElevations = function(coords) {
+//     var deferred = Q.defer(),
+//         elevations = [];
+
+//     for (var i = 0; i < coords.length; i++) {
+//         elevations.push(counter++);
+//     }
+//     console.log('Obtained elevations for ' + coords.length +
+//         ' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
+//         ' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']');
+//     deferred.resolve(elevations);
+//     return deferred.promise;
+// };
 
 var getElevations = function(coords) {
 	var deferred = Q.defer(),
-		elevations = [];
+		gm = require('googlemaps'),
+		elevations = [],
+		coordStrings = coords.map(function(coord) {
+			return coord.latitude + ',' + coord.longitude;
+		});
 
-	for (var i = 0; i < coords.length; i++) {
-		elevations.push(counter++);
-	}
-	console.log('Obtained elevations for ' + coords.length +
-		' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
-		' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']');
-	deferred.resolve(elevations);
+	gm.elevationFromLocations(coordStrings.join('|'), function(err, response) {
+		if (response.status === 'OK') {
+			elevations = response.results.map(function(result) {
+				return result.elevation;
+			});
+
+			console.log('Obtained elevations for ' + coords.length +
+				' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
+				' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']');
+			deferred.resolve(elevations);
+
+		} else {
+			console.log('Failed to obtain elevations for ' + coords.length +
+				' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
+				' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']' +
+				', reason: ' + response.status);
+			deferred.reject(response.status);
+		}
+	});
 	return deferred.promise;
 };
-
-// var getElevations = function(coords) {
-//     var deferred = Q.defer(),
-//         gm = require('googlemaps'),
-//         elevations = [],
-//         coordStrings = coords.map(function(coord) {
-//             return coord.latitude + ',' + coord.longitude;
-//         });
-
-//     gm.elevationFromLocations(coordStrings.join('|'), function(err, response) {
-//         if (response.status === 'OK') {
-//             elevations = response.results.map(function(result) {
-//                 return result.elevation;
-//             });
-
-//             console.log('Obtained elevations for ' + coords.length +
-//                 ' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
-//                 ' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']')
-//             deferred.resolve(elevations);
-
-//         } else {
-//             console.log('Failed to obtain elevations for ' + coords.length +
-//                 ' coordinates between [' + coords[0].latitude + ',' + coords[0].longitude + ']' +
-//                 ' and [' + coords[coords.length - 1].latitude + ',' + coords[coords.length - 1].longitude + ']' + 
-//                 ', reason: ' + response.status);
-//             deferred.reject(response.status);
-//         }
-//     });
-//     return deferred.promise;
-// };
 
 var splitCoordsInIntervals = function(coords, intervalDistanceInKm) {
 	var distanceBuffer = 0,
@@ -237,8 +178,7 @@ var splitCoordsInIntervals = function(coords, intervalDistanceInKm) {
 		}
 	}
 	return coordIntervals;
-}
-
+};
 var createElevationRequests = function(coords, maxLocationsPerRequest) {
 	var elevationRequestFns = [],
 		lastIndex = 0,
@@ -246,9 +186,9 @@ var createElevationRequests = function(coords, maxLocationsPerRequest) {
 	for (var i = 0; i < coords.length; i += maxLocationsPerRequest) {
 		fn = _.throttle(getElevations.bind(null, coords.slice(i, Math.min(i + maxLocationsPerRequest, coords.length))), 1000);
 		elevationRequestFns.push(fn);
-	};
+	}
 	return elevationRequestFns;
-}
+};
 
 var executeMultipleRequests = function(requestFns) {
 	var promises = [];

@@ -63,7 +63,7 @@ var importPoints = function (filePath, callback) {
     }
 
     readPoints(filePath).then(function (points) {
-        var points = points.map(function (point) {
+        points = points.map(function (point) {
             var pointModel = new PointModel();
 
             pointModel.latitude = point[0];

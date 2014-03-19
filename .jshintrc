@@ -3,10 +3,12 @@
 	"browser": true,
 	"node": true,
 	"jquery": true,
+	"loopfunc": true,
+	"expr" : true,
 	"globals": {
 		"angular": false,
 		"google": false,
-		"app": false
+		"myApp": false
 	},
 	"predef": [
 		/* browser global methods */

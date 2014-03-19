@@ -10,8 +10,8 @@ angular.module('myApp.services').service('estimationService', function($q, $root
   function newton(a, b, d, f, h) {
     var g = 20;
     for (var i = 1; 10 > i; i++) {
-      var e = g + b,
-        e = g - (g * (a * e * e + d) - f * h) / (a * (3 * g + b) * e + d);
+      var y = g + b,
+        e = g - (g * (a * y * y + d) - f * h) / (a * (3 * g + b) * y + d);
       if (0.05 > Math.abs(e - g)) return e;
       g = e;
     }

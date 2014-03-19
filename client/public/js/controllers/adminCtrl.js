@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('AdminCtrl', ['$scope', '$upload',
+ myApp.controller('AdminCtrl', ['$scope', '$upload',
   function($scope, $upload) {
     $scope.onFileSelect = function($files) {
       $scope.progress = 0;

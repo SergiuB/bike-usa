@@ -1,6 +1,6 @@
 'use strict';
 
-app.constant('mapFeatureConfig', [{
+myApp.constant('mapFeatureConfig', [{
   "featureType": "landscape",
   "stylers": [{
     "color": "#2d3038"

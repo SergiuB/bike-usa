@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('TestCoordinatesCtrl', ['$scope',
+myApp.controller('TestCoordinatesCtrl', ['$scope',
   function($scope) {
     
   }

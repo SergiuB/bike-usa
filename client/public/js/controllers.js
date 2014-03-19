@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'PathModel',
+myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'PathModel',
   function($scope, $http, $rootScope, estimationService, PathModel) {
     PathModel.get({
       id: 1
@@ -20,7 +20,7 @@ app.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService'
 
 
 
-app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
+myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
   function($scope, $rootScope, estimationService) {
 
     function afterSetExtremes(e) {
@@ -188,7 +188,7 @@ app.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
   }
 ]);
 
-app.controller('DayCarouselCtrl', ['$scope', '$rootScope',
+myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
   function($scope, $rootScope) {
     $rootScope.$on('estimationsComputed', function(ev, dayEstimation) {
       var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];

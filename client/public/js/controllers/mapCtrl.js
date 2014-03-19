@@ -1,6 +1,6 @@
 'use strict';
 
-app.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
   function($scope, $rootScope, mapService, mapFeatureConfig) {
     var me = this;
     // This is the minimum zoom level that we'll allow

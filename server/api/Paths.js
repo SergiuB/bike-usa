@@ -3,7 +3,7 @@ var Q = require("q"),
     Lazy = require("lazy"),
     db = require('../db/db'),
     async = require('async'), 
-    PointModel = db.connection.model('PointModel');
+    PointModel = db.connection.model('PointModel'),
     points = null;
 
 var readDbPoints = function (callback) {
@@ -32,6 +32,7 @@ var readDbPoints = function (callback) {
 
 exports.show = function(req, res) {
     readDbPoints(function (err, pointModels) {
+        var url;
         if (err) {
             res.status(500);
             url = req.url;

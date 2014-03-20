@@ -70,3 +70,29 @@ exports.uploadKml = function(req, res) {
 		});
 	});
 };
+
+exports.index = function(req, res) {
+	Path.find(function(err, paths) {
+		var newPaths = paths.map(function(path) {
+			return {
+				_id: path._id,
+				name: path.name,
+				segments: path.segments.map(function(segment) {
+					return {
+						_id: segment._id,
+						name: segment.name,
+						startCoord: [segment.locations[0].latitude, segment.locations[0].longitude],
+						endCoord: [segment.locations[segment.locations.length - 1].latitude, segment.locations[segment.locations.length - 1].longitude],
+						distance: segment.locations[segment.locations.length - 1].distStart,
+						href: req.originalUrl + '/' + path._id + '/segment/' + segment._id
+					};
+				})
+			};
+		});
+		if (!err) {
+			return res.send(newPaths);
+		} else {
+			return console.log(err);
+		}
+	});
+};

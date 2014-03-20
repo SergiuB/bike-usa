@@ -77,6 +77,8 @@ app.post('/api/admin/kmlUpload', pathsNew.uploadKml);
 // JSON API
 app.resource('api/paths', require('./server/api/Paths.js'));
 app.resource('api/coordinates', require('./server/api/Coordinates.js'));
+app.resource('api/pathsNew', require('./server/api/PathsNew.js'));
+app.resource('api/pathsNew/:pathId/segment', require('./server/api/Segments.js'));
 
 // redirect all others to the index (HTML5 history)
 app.get('*', routes.index);

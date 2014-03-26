@@ -21,3 +21,20 @@ exports.show = function(req, res) {
 		}
 	});
 };
+
+exports.destroy = function(req, res) {
+	Path.findById(req.params.pathId, function(err, path) {
+		if (!err) {
+			path.segments.id(req.params.segment).remove();
+			path.save(function(err) {
+				if (!err) {
+					res.send(204);
+				} else {
+					res.send(500, err);
+				}
+			});
+		} else {
+			res.send(500, err);
+		}
+	});
+};

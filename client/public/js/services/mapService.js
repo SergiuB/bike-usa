@@ -56,12 +56,23 @@ angular.module('myApp.services').service('mapService', [
       return new google.maps.Marker(options);
     };
 
+    me.createMarkerWithLabel = function(options) {
+      return new MarkerWithLabel(options); 
+    };
+
+    me.createStyledMarker = function(options) {
+      options.styleIcon =  new StyledIcon(StyledIconTypes.MARKER,{color:options.color,text:options.text});
+      return new StyledMarker(options); 
+    };
+
+    styleIcon:new StyledIcon(StyledIconTypes.MARKER,{color:"00ff00",text:"A"}),
+
     me.createPolyline = function(options) {
       return new google.maps.Polyline(options);
     };
 
     me.createLatLng = function(point) {
-      return new google.maps.LatLng(point.lat, point.long);
+      return new google.maps.LatLng(point.lat || point.latitude, point.long || point.longitude);
     };
     me.createLatLngArray = function(pointArray) {
       return pointArray.map(me.createLatLng);

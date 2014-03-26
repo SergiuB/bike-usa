@@ -8,7 +8,8 @@
 	"globals": {
 		"angular": false,
 		"google": false,
-		"myApp": false
+		"myApp": false,
+		"MarkerWithLabel": true
 	},
 	"predef": [
 		/* browser global methods */

@@ -1,7 +1,14 @@
 'use strict';
 
- myApp.controller('AdminCtrl', ['$scope', '$upload',
-  function($scope, $upload) {
+myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel',
+  function($scope, $upload, NewPathModel) {
+
+    $scope.loadPaths = function() {
+      $scope.paths = NewPathModel.query();
+    };
+
+    $scope.loadPaths();
+
     $scope.onFileSelect = function($files) {
       $scope.progress = 0;
       $scope.uploadError = '';
@@ -24,16 +31,22 @@
           /* customize how data is added to formData. See #40#issuecomment-28612000 for example */
           //formDataAppender: function(formData, key, val){} //#40#issuecomment-28612000
         })
-        .progress(function(evt) {
-          $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
-          console.log('percent: ' + $scope.progress);
-        }).success(function(data, status, headers, config) {
-          $scope.success = true;
-        })
-        .error(function(error) {
-          $scope.uploadError = error;
-        });
+          .progress(function(evt) {
+            $scope.progress = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('percent: ' + $scope.progress);
+          }).success(function(data, status, headers, config) {
+            $scope.success = true;
+          })
+          .error(function(error) {
+            $scope.uploadError = error;
+          });
       }
+    };
+
+    $scope.getPath = function(pathId) {
+      return $scope.paths.filter(function(path) {
+        return path._id === pathId;
+      })[0];
     };
   }
 ]);

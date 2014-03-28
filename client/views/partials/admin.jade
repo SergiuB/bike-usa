@@ -13,37 +13,57 @@ div.container.theme-showcase
             span(ng-show="success") OK
             span(ng-show="uploadError") Error
         div(ng-show="uploadError") {{uploadError}}
-    div(ng-controller='PathCtrl')
-      div.row
-        div.btn-group(ng-repeat='path in paths')
-          button.btn.btn-default(type="button",ng-model="path.selected",ng-change="pathSelectionChange(path)", btn-checkbox)
-            span {{path.name}}
-            div(style="display: inline-block; width: 10px; height: 10px; background-color: {{path.getColor()}}")
-      div.row
-        div.pull-left.bg-primary(ng-repeat='path in paths', ng-show="path.selected")
-          input(ng-model="path.hideMarkers", ng-change="toggleMarkers(path)", type="checkbox")
-          span(style="background-color: {{path.getColor()}}") Hide markers
-
     div.row(ng-controller='AdminMapCtrl')
-      #adminMap
-      div.well(ng-controller='SegmentCtrl', ng-show='model.selectedSegmentData')
-          p Segment {{model.selectedSegmentData.segmentIndex}} ({{model.selectedSegmentData.segment.name}}) in path {{model.selectedSegmentData.path.name}}
-          p Distance {{model.selectedSegmentData.segment.distance | inKm}} km
+      #adminMap.col-md-9
+      div.col-md-3
+        div.well.pathSelector(ng-controller="PathSelectCtrl")
+          h3 Available paths
+          div(ng-repeat='path in paths')
+            div(style="display: inline-block; width: 10px; height: 10px; background-color: {{path.getColor()}}")
+            input(ng-model='$parent.getPathUI(path).selected', ng-change="$parent.togglePathSelection(path)", type="checkbox")
+            span {{path.name}}
+    div.row(ng-controller='PathCtrl')
+      div.pathTile.pull-left(ng-repeat='path in paths', ng-show="getPathUI(path).selected", style="background-color: {{path.getColor()}}")
+        span.h4.pathName(ng-hide='getPathUI(path).editingName') {{path.name}}
+        input(type="text",ng-model="path.name",ng-required,ng-show='getPathUI(path).editingName')
+        button.btn.btn-xs.btn-default(type="button",ng-click="$parent.editName(path)",ng-hide='$parent.getPathUI(path).editingName',tooltip="Edit name")
+          span.glyphicon.glyphicon-edit
+        button.btn.btn-xs.btn-default(type="button",ng-click="$parent.saveName(path)",ng-show='$parent.getPathUI(path).editingName',tooltip="Save new name")
+          span.glyphicon.glyphicon-ok
+        button.btn.btn-xs.btn-default(type="button",ng-click="$parent.loadName(path)",ng-show='$parent.getPathUI(path).editingName',tooltip="Cancel edit")
+          span.glyphicon.glyphicon-remove
+        br
+        //- div.pathSummary
+        //-   p Distance: {{path.getDistance() |  inKm}} km
+        //-   p Elevation gain: {{path.getElevationGain()}} m
+        //-   p Start coord:  {{path.getStartCoord()}}
+        //-   p End coord:  {{path.getEndCoord()}}
+        div.pathOperations
+          input(ng-model='$parent.getPathUI(path).hideMarkers', ng-change="$parent.toggleMarkers(path)", type="checkbox")
+          span(style="background-color: {{path.getColor()}}") Hide markers
+          br
+          button.btn.btn-default(type="button",ng-click="$parent.duplicate(path)",tooltip="Duplicate path")
+            span Duplicate
+          button.btn.btn-default(type="button",ng-click="$parent.removePath(path)",tooltip="Delete path")
+            span.glyphicon.glyphicon-remove
+    div.row.well(ng-controller='SegmentCtrl', ng-show='adminMapData.selectedSegmentData')
+        p Segment {{adminMapData.selectedSegmentData.segmentIndex+1}} ({{adminMapData.selectedSegmentData.segment.name}}) in path {{adminMapData.selectedSegmentData.path.name}}
+        p Distance {{adminMapData.selectedSegmentData.segment.distance | inKm}} km
+        div.btn-group
+          button.btn.btn-default(type="button",ng-model="showCopyOptions", btn-checkbox)
+            span Copy to other path
+          button.btn.btn-default(type="button", ng-click="removeSelectedSegment()")
+            span Remove
+        div(ng-show="showCopyOptions", ng-repeat='path in getOtherPaths()')
+          input(type="radio", name='targetPath', ng-model="$parent.targetPathId", value="{{path._id}}") 
+          span(style="background-color: {{path.getColor()}}") {{path.name}}
+        div(ng-show="showCopyOptions&&targetPathId") 
+          p Select "First" or segment in target path after which this segment will be copied:
           div.btn-group
-            button.btn.btn-default(type="button",ng-model="showCopyOptions", btn-checkbox)
-              span Copy to other path
-            button.btn.btn-default(type="button", ng-click="removeSelectedSegment()")
-              span Remove
-          div(ng-show="showCopyOptions", ng-repeat='path in getOtherPaths()')
-            input(type="radio", name='targetPath', ng-model="$parent.targetPathId", value="{{path._id}}") 
-            span(style="background-color: {{path.getColor()}}") {{path.name}}
-          div(ng-show="showCopyOptions&&targetPathId") 
-            p Select "First" or segment in target path after which this segment will be copied:
-            div.btn-group
-              button.btn.btn-default(type="button", tooltip="Copy as first segment in path {{getPath(targetPathId).name}}", ng-click="copySelectedSegmentToTargetPath(targetPathId)")
-                span First
-              button.btn.btn-default(ng-repeat='segment in getTargetPathSegments()', type="button", tooltip="Copy after segment {{segment.name}} in path {{$parent.getPath($parent.targetPathId).name}}", ng-click="$parent.copySelectedSegmentToTargetPath($parent.targetPathId, $index + 1)")
-                span {{$index + 1}}
+            button.btn.btn-default(type="button", tooltip="Copy as first segment in path {{getPath(targetPathId).name}}", ng-click="copySelectedSegmentToTargetPath(targetPathId)")
+              span First
+            button.btn.btn-default(ng-repeat='segment in getTargetPathSegments()', type="button", tooltip="Copy after segment {{segment.name}} in path {{$parent.getPath($parent.targetPathId).name}}", ng-click="$parent.copySelectedSegmentToTargetPath($parent.targetPathId, $index + 1)")
+              span {{$index + 1}}
 
 
 

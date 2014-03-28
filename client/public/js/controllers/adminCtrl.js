@@ -1,13 +1,13 @@
 'use strict';
 
-myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel',
-  function($scope, $upload, NewPathModel) {
+myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel', 'PathDataStore',
+  function($scope, $upload, NewPathModel, PathDataStore) {
 
-    $scope.loadPaths = function() {
-      $scope.paths = NewPathModel.query();
+    $scope.paths = PathDataStore.paths;
+    $scope.pathsUI = PathDataStore.pathsUI;
+    $scope.getPathUI = function(pathOrPathId) {
+      return PathDataStore.getPathUI(pathOrPathId);
     };
-
-    $scope.loadPaths();
 
     $scope.onFileSelect = function($files) {
       $scope.progress = 0;
@@ -41,12 +41,6 @@ myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel',
             $scope.uploadError = error;
           });
       }
-    };
-
-    $scope.getPath = function(pathId) {
-      return $scope.paths.filter(function(path) {
-        return path._id === pathId;
-      })[0];
     };
   }
 ]);

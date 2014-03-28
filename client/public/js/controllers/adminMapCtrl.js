@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
-  function($scope, $rootScope, mapService, mapFeatureConfig) {
+myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', 'adminMapData',
+  function($scope, $rootScope, mapService, mapFeatureConfig, adminMapData) {
     var me = this;
     var pathsShown = {};
     var mapOptions = {
@@ -12,24 +12,24 @@ myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeat
       }),
     };
     var map = mapService.createMap('adminMap', mapOptions);
-    $rootScope.$on('pathCtrl_pathChecked', showPath);
-    $rootScope.$on('pathCtrl_pathUnchecked', hidePath);
+    $rootScope.$on('PathDataStore_selectedChanged', function(ev, path, selected) {
+      if (selected)
+        showPath(path);
+      else
+        hidePath(path);
+    });
     $rootScope.$on('segmentCtrl_pathChanged', refreshPath);
-    $rootScope.$on('pathCtrl_pathToggleMarkers', toggleMarkersForPath);
-
-    $scope.model = {
-      selectedSegmentData: null
-    };
-
-    function toggleMarkersForPath(ev, path) {
+    $rootScope.$on('PathDataStore_hideMarkersChanged', function(ev, path, hideMarkers) {
       if (pathsShown[path._id]) {
         pathsShown[path._id].segmentVisuals.forEach(function(visualPointer) {
-          visualPointer.marker.setMap(path.hideMarkers ? null : map);
+          visualPointer.marker.setMap(hideMarkers ? null : map);
         });
       }
-    }
+    });
 
-    function showPath(ev, path) {
+    $scope.adminMapData = adminMapData;
+
+    function showPath(path) {
       if (!pathsShown[path._id]) {
         pathsShown[path._id] = {
           path: path,
@@ -41,8 +41,8 @@ myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeat
       mapFitSelectedPaths();
     }
 
-    function hidePath(ev, path) {
-      var model = $scope.model;
+    function hidePath(path) {
+      var adminMapData = $scope.adminMapData;
       if (pathsShown[path._id]) {
         pathsShown[path._id].segmentVisuals.forEach(function(visualPointer) {
           google.maps.event.removeListener(visualPointer.markerClickListener);
@@ -50,16 +50,16 @@ myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeat
           visualPointer.marker.setMap(null);
         });
         delete pathsShown[path._id];
-        if (model.selectedSegmentData && model.selectedSegmentData.path._id === path._id) {
-          model.selectedSegmentData = null;
+        if (adminMapData.selectedSegmentData && adminMapData.selectedSegmentData.path._id === path._id) {
+          adminMapData.selectedSegmentData = null;
         }
       }
       mapFitSelectedPaths();
     }
 
     function refreshPath(ev, path) {
-      hidePath(null, path);
-      showPath(null, path);
+      hidePath(path);
+      showPath(path);
     }
 
     function getSegmentCoordinates(segment) {
@@ -90,28 +90,28 @@ myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeat
       });
       var clickListener = google.maps.event.addListener(marker, "click", function(e) {
         $scope.$apply(function() {
-          var model = $scope.model;
-          if (model.selectedSegmentData) {
-            stopMarker(model.selectedSegmentData.marker);
-            if (marker === model.selectedSegmentData.marker)
-              model.selectedSegmentData = null;
+          var adminMapData = $scope.adminMapData;
+          if (adminMapData.selectedSegmentData) {
+            stopMarker(adminMapData.selectedSegmentData.marker);
+            if (marker === adminMapData.selectedSegmentData.marker)
+              adminMapData.selectedSegmentData = null;
             else {
-              model.selectedSegmentData = {
+              adminMapData.selectedSegmentData = {
                 marker: marker,
                 segment: segment,
                 segmentIndex: segmentIndex,
                 path: path
               };
-              startMarker(model.selectedSegmentData.marker);
+              startMarker(adminMapData.selectedSegmentData.marker);
             }
           } else {
-            model.selectedSegmentData = {
+            adminMapData.selectedSegmentData = {
               marker: marker,
               segment: segment,
               segmentIndex: segmentIndex,
               path: path
             };
-            startMarker(model.selectedSegmentData.marker);
+            startMarker(adminMapData.selectedSegmentData.marker);
           }
         });
       });

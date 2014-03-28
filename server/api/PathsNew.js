@@ -103,18 +103,68 @@ exports.index = function(req, res) {
 	});
 };
 
+function sendPath(path, req, res) {
+	res.send({
+		_id: path._id,
+		name: path.name,
+		segments: path.segments.map(function(segment) {
+			var compactSegment = getCompactSegment(segment);
+			compactSegment.href = req.originalUrl + '/' + path._id + '/segment/' + segment._id;
+			return compactSegment;
+		})
+	});
+}
+
+function saveAndSendPath(path, req, res) {
+	path.save(function(err) {
+		if (!err) {
+			sendPath(path, req, res);
+		} else {
+			res.send(500, err);
+		}
+	});
+}
+
 exports.show = function(req, res) {
 	Path.findById(req.param('pathsNew'), function(err, targetPath) {
 		if (!err) {
-			res.send({
-				_id: targetPath._id,
-				name: targetPath.name,
-				segments: targetPath.segments.map(function(segment) {
-					var compactSegment = getCompactSegment(segment);
-					compactSegment.href = req.originalUrl + '/' + targetPath._id + '/segment/' + segment._id;
-					return compactSegment;
-				})
-			});
+			var retObj = {
+				_id: targetPath._id
+			};
+			var fields = req.param('fields');
+			if (fields) {
+				if (fields.indexOf('name') >= 0)
+					retObj.name = targetPath.name;
+				res.send(retObj);
+			} else {
+				sendPath(targetPath, req, res);
+			}
+		} else {
+			res.send(500, err);
+		}
+	});
+};
+
+exports.create = function(req, res) {
+	var path = new Path({
+		name: req.body.name,
+		segments: []
+	});
+	path.save(function(err) {
+		if (err) {
+			res.send(500, 'err');
+		} else {
+			sendPath(path, req, res);
+		}
+	});
+};
+
+exports.destroy = function(req, res) {
+	Path.remove(({
+		_id: req.param('pathsNew')
+	}), function(err) {
+		if (!err) {
+			res.send(204);
 		} else {
 			res.send(500, err);
 		}
@@ -123,35 +173,51 @@ exports.show = function(req, res) {
 
 exports.edit = function(req, res) {
 	var srcSegment;
-	var targetIndex = +req.param('targetIndex');
+	var targetIndex = +req.param('targetIndex') || 0;
 	var targetSegment;
 	Path.findById(req.param('pathsNew'), function(err, targetPath) {
 		if (!err) {
-			Path.findById(req.param('srcPathId'), function(err, srcPath) {
-				if (!err) {
-					Path.findById(req.param('srcPathId'), function(err, srcPath) {
-						if (!err) {
-							srcSegment = srcPath.segments.id(req.param('srcSegmentId'));
-							targetSegment = {
-								locations: srcSegment.locations,
-								name: srcSegment.name
-							};
-							targetPath.segments.splice(targetIndex, 0, targetSegment);
-							targetPath.save(function(err) {
-								if (!err) {
-									res.send(targetPath);
-								} else {
-									res.send(500, err);
-								}
-							});
+			var operationType = req.param('operationType');
+			if (!operationType)
+				res.send(500, 'No operation type provided.');
+			if (operationType === 'copySegment') {
+				Path.findById(req.param('srcPathId'), function(err, srcPath) {
+					if (!err) {
+						if (srcPath) {
+							if (req.param('srcSegmentId')) {
+								srcSegment = srcPath.segments.id(req.param('srcSegmentId'));
+								targetSegment = {
+									locations: srcSegment.locations,
+									name: srcSegment.name
+								};
+								targetPath.segments.splice(targetIndex, 0, targetSegment);
+							} else { // copy all segments
+								var args = [targetIndex, 0];
+								args = args.concat(srcPath.segments.map(function(srcSegment) {
+									return {
+										locations: srcSegment.locations,
+										name: srcSegment.name
+									};
+								}));
+								targetPath.segments.splice.apply(targetPath.segments, args);
+							}
+							saveAndSendPath(targetPath, req, res);
 						} else {
-							res.send(500, err);
+							res.send(500, 'Path with ID ' + req.param('srcPathId') + ' not found.');
 						}
-					});
-				} else {
-					res.send(500, err);
+					} else {
+						res.send(500, err);
+					}
+				});
+			} else if (operationType === 'changeName') {
+				var newName = req.param('newName');
+				if (!newName) {
+					res.send(500, 'No new name provided.');
+					return;
 				}
-			});
+				targetPath.name = newName;
+				saveAndSendPath(targetPath, req, res);
+			}
 		} else {
 			res.send(500, err);
 		}

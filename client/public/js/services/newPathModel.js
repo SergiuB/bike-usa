@@ -18,7 +18,24 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
     }, {
       copySegment: {
         method: 'GET',
-        url: '/api/pathsNew/:id/edit'
+        url: '/api/pathsNew/:id/edit',
+        params: {
+          operationType: 'copySegment'
+        }
+      },
+      getName: {
+        method: 'GET',
+        url: '/api/pathsNew/:id',
+        params: {
+          fields: 'name'
+        }
+      },
+      changeName: {
+        method: 'GET',
+        url: '/api/pathsNew/:id/edit',
+        params: {
+          operationType: 'changeName'
+        }
       }
     });
 
@@ -29,10 +46,6 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
       }
       return assignedColors[me._id];
     };
-
-    //     var fibonacci = _.memoize(function(n) {
-    //   return n < 2 ? n: fibonacci(n - 1) + fibonacci(n - 2);
-    // });
 
     var hashCode = function(str) {
       var hash = 0,

@@ -1,29 +1,26 @@
 'use strict';
 
-myApp.controller('SegmentCtrl', ['$scope', '$rootScope', '$http', 'SegmentModel', 'NewPathModel',
-	function($scope, $rootScope, $http, SegmentModel, NewPathModel) {
+myApp.controller('SegmentCtrl', ['$scope', '$rootScope', '$http', 'SegmentModel', 'NewPathModel', 'PathDataStore', 'adminMapData',
+	function($scope, $rootScope, $http, SegmentModel, NewPathModel, PathDataStore, adminMapData) {
 		$scope.targetPathId = null;
+		$scope.adminMapData = adminMapData;
 
-		$scope.$watch('model.selectedSegmentData', function(newValue, oldValue) {
+		$scope.$watch('adminMapData.selectedSegmentData', function(newValue, oldValue) {
 			if (!newValue || !oldValue || (newValue.path._id !== oldValue.path._id))
 				$scope.targetPathId = null;
 		});
 
 		$scope.getOtherPaths = function() {
-			var otherPaths = $scope.paths.filter(function(path) {
-				if ($scope.model.selectedSegmentData)
-					return path.selected && path._id !== $scope.model.selectedSegmentData.path._id;
+			var otherPaths = PathDataStore.paths.filter(function(path) {
+				if ($scope.adminMapData.selectedSegmentData)
+					return PathDataStore.pathSelected(path) && path._id !== $scope.adminMapData.selectedSegmentData.path._id;
 				return false;
 			});
-			// if ($scope.targetPathId === null)
-			// 	$scope.targetPathId = (otherPaths.length) ? otherPaths[0]._id : null;
 			return otherPaths;
 		};
 
 		$scope.getTargetPathSegments = function() {
-			var targetPath = $scope.paths.filter(function(path) {
-				return path._id === $scope.targetPathId;
-			})[0];
+			var targetPath = PathDataStore.getPath($scope.targetPathId);
 			if (targetPath)
 				return targetPath.segments;
 			else
@@ -31,7 +28,7 @@ myApp.controller('SegmentCtrl', ['$scope', '$rootScope', '$http', 'SegmentModel'
 		};
 
 		var refreshPathSegments = function(pathId) {
-			var path = $scope.getPath(pathId);
+			var path = PathDataStore.getPath(pathId);
 			NewPathModel.get({
 				id: pathId
 			}, function(freshPath) {
@@ -41,22 +38,21 @@ myApp.controller('SegmentCtrl', ['$scope', '$rootScope', '$http', 'SegmentModel'
 		};
 
 		$scope.copySelectedSegmentToTargetPath = function(targetPathId, targetIndex) {
-			var srcPathId = $scope.model.selectedSegmentData.path._id;
-			var srcSegmentId = $scope.model.selectedSegmentData.segment._id;
-			var targetPath = $scope.getPath(targetPathId);
+			var srcPathId = $scope.adminMapData.selectedSegmentData.path._id;
+			var srcSegmentId = $scope.adminMapData.selectedSegmentData.segment._id;
+			var targetPath = PathDataStore.getPath(targetPathId);
 			targetPath.$copySegment({
 				srcPathId: srcPathId,
 				srcSegmentId: srcSegmentId,
 				targetIndex: targetIndex || 0
 			}, function(path) {
 				refreshPathSegments(targetPathId);
-				path.selected = true;
 			});
 		};
 
 		$scope.removeSelectedSegment = function() {
-			var srcPathId = $scope.model.selectedSegmentData.path._id;
-			var srcSegmentId = $scope.model.selectedSegmentData.segment._id;
+			var srcPathId = $scope.adminMapData.selectedSegmentData.path._id;
+			var srcSegmentId = $scope.adminMapData.selectedSegmentData.segment._id;
 			SegmentModel.get({
 				pathId: srcPathId,
 				id: srcSegmentId

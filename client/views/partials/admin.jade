@@ -64,6 +64,13 @@ div.container.theme-showcase
               span First
             button.btn.btn-default(ng-repeat='segment in getTargetPathSegments()', type="button", tooltip="Copy after segment {{segment.name}} in path {{$parent.getPath($parent.targetPathId).name}}", ng-click="$parent.copySelectedSegmentToTargetPath($parent.targetPathId, $index + 1)")
               span {{$index + 1}}
-
+    div.row.panel.panel-default
+      div.panel-heading
+        h3.panel-title Options
+      div.panel-body
+        span Active path:
+        select(ng-model="activePath", ng-options='path.name for path in paths')
+        button.btn.btn-default(type="button", ng-hide='activePath._id === adminOptions.activePathId', ng-click="saveActivePath()",tooltip="Active path changed, click to Save")
+            span Save Change
 
 

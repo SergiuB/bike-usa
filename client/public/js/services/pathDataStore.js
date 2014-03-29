@@ -1,16 +1,30 @@
 'use strict';
 
-angular.module('myApp.services').factory('PathDataStore', ['$rootScope', 'NewPathModel',
-	function($rootScope, NewPathModel) {
+angular.module('myApp.services').factory('PathDataStore', ['$rootScope', '$http', '$q', 'NewPathModel',
+	function($rootScope, $http, $q, NewPathModel) {
 
 		var getPathId = function(pathOrPathId) {
 			var isString = (typeof pathOrPathId === 'string');
 			if (pathOrPathId && (isString || pathOrPathId._id))
 				return (typeof pathOrPathId === 'string') ? pathOrPathId : pathOrPathId._id;
 		};
-		return {
+		var obj = {};
+		var adminOptionPromise = $http.get('/api/admin/options');
+		angular.extend(obj, {
 			paths: NewPathModel.query(),
 			pathsUI: {},
+			getActivePath: function() {
+				var deferred = $q.defer();
+				var me = this;
+				me.paths.$promise.then(function() {
+					adminOptionPromise.success(function(data) {
+						var pathId = data.activePathId;
+						var activePath= obj.getPath(pathId);
+						deferred.resolve(activePath);
+					});
+				});
+				return deferred.promise;
+			},
 			getPath: function(pathOrPathId) {
 				var pathId = getPathId(pathOrPathId);
 				if (pathId) {
@@ -63,6 +77,7 @@ angular.module('myApp.services').factory('PathDataStore', ['$rootScope', 'NewPat
 			pathHideMarkers: function(pathOrPathId, value) {
 				return this.pathUIProperty(pathOrPathId, 'hideMarkers', value);
 			}
-		};
+		});
+		return obj;
 	}
 ]);

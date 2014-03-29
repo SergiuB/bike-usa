@@ -1,12 +1,24 @@
 'use strict';
 
-myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel', 'PathDataStore',
-  function($scope, $upload, NewPathModel, PathDataStore) {
+myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel', 'PathDataStore', 'adminOptionsService',
+  function($scope, $upload, NewPathModel, PathDataStore, adminOptionsService) {
 
     $scope.paths = PathDataStore.paths;
     $scope.pathsUI = PathDataStore.pathsUI;
     $scope.getPathUI = function(pathOrPathId) {
       return PathDataStore.getPathUI(pathOrPathId);
+    };
+
+    adminOptionsService.load().then(function(options) {
+      $scope.adminOptions = options;
+      PathDataStore.paths.$promise.then(function() {
+        $scope.activePath = PathDataStore.getPath(options.activePathId);
+      });
+    }); 
+
+    $scope.saveActivePath = function() {
+      $scope.adminOptions.activePathId = $scope.activePath._id;
+      adminOptionsService.save();
     };
 
     $scope.onFileSelect = function($files) {

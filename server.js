@@ -72,7 +72,10 @@ app.get('/partials/:name', routes.partials);
 
 
 var pathsNew = require('./server/api/PathsNew.js');
+var adminOptions = require('./server/api/AdminOptions.js');
 app.post('/api/admin/kmlUpload', pathsNew.uploadKml);
+app.post('/api/admin/options', adminOptions.save);
+app.get('/api/admin/options', adminOptions.get);
 
 // JSON API
 app.resource('api/paths', require('./server/api/Paths.js'));

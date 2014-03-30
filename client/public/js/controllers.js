@@ -246,3 +246,12 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
 
   }
 ]);
+
+myApp.controller('LoginCtrl', 
+  function() {
+  }
+);
+myApp.controller('SignupCtrl', 
+  function() {
+  }
+);

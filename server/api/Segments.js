@@ -15,7 +15,7 @@ exports.index = function(req, res) {
 exports.show = function(req, res) {
 	Path.findById(req.params.pathId, function(err, path) {
 		if (!err) {
-			return res.send(path.segments.id(req.params.segment));
+			return res.send(path.segments.id(req.params.segmentId));
 		} else {
 			return console.log(err);
 		}
@@ -25,7 +25,7 @@ exports.show = function(req, res) {
 exports.destroy = function(req, res) {
 	Path.findById(req.params.pathId, function(err, path) {
 		if (!err) {
-			path.segments.id(req.params.segment).remove();
+			path.segments.id(req.params.segmentId).remove();
 			path.save(function(err) {
 				if (!err) {
 					res.send(204);

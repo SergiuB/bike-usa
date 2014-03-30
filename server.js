@@ -2,9 +2,9 @@ require("console-stamp")(console, "HH:MM:ss.l");
 
 var express = require('express'),
   Resource = require('express-resource'),
-  routes = require('./server/routes'),
   db = require('./server/db/db'),
   fs = require("fs"),
+  passport = require("passport"),
   app = express();
 // Load configurations
 var env = process.env.NODE_ENV || 'development',
@@ -44,22 +44,6 @@ process.on('uncaughtException', function(e) {
   process.exit();
 });
 
-app.configure(function() {
-  app.set('views', __dirname + '/client/views');
-  app.set('view engine', 'jade');
-  app.set('view options', {
-    layout: false
-  });
-  app.use(express.bodyParser({ 
-    keepExtensions: true, 
-    uploadDir: __dirname + '/uploads'
-  }));
-  app.use(express.compress());
-  app.use(express.methodOverride());
-  app.use(express.static(__dirname + '/client/public'));
-  app.use(app.router);
-});
-
 // Bootstrap models
 var fs = require("fs");
 var modelsPath = './server/models';
@@ -67,24 +51,29 @@ fs.readdirSync(modelsPath).forEach(function (file) {
     require(modelsPath + '/' + file);
 });
 
-app.get('/', routes.index);
-app.get('/partials/:name', routes.partials);
+require('./server/passport')(passport, config);
 
+app.configure(function() {
+  app.set('views', __dirname + '/client/views');
+  app.set('view engine', 'jade');
+  app.set('view options', {
+    layout: false
+  });
+  app.use(express.cookieParser());
+  app.use(express.bodyParser({ 
+    keepExtensions: true, 
+    uploadDir: __dirname + '/uploads'
+  }));
+  app.use(express.session({ secret: 'keyboard cat' }));
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(express.compress());
+  app.use(express.methodOverride());
+  app.use(express.static(__dirname + '/client/public'));
+  app.use(app.router);
+});
 
-var pathsNew = require('./server/api/PathsNew.js');
-var adminOptions = require('./server/api/AdminOptions.js');
-app.post('/api/admin/kmlUpload', pathsNew.uploadKml);
-app.post('/api/admin/options', adminOptions.save);
-app.get('/api/admin/options', adminOptions.get);
-
-// JSON API
-app.resource('api/paths', require('./server/api/Paths.js'));
-app.resource('api/coordinates', require('./server/api/Coordinates.js'));
-app.resource('api/pathsNew', require('./server/api/PathsNew.js'));
-app.resource('api/pathsNew/:pathId/segment', require('./server/api/Segments.js'));
-
-// redirect all others to the index (HTML5 history)
-app.get('*', routes.index);
+require('./server/routes')(app, passport);
 
 var port = process.env.PORT || 3000;
 

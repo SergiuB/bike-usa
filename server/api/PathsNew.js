@@ -126,7 +126,7 @@ function saveAndSendPath(path, req, res) {
 }
 
 exports.show = function(req, res) {
-	Path.findById(req.param('pathsNew'), function(err, targetPath) {
+	Path.findById(req.param('pathId'), function(err, targetPath) {
 		if (!err) {
 			var retObj = {
 				_id: targetPath._id
@@ -139,7 +139,7 @@ exports.show = function(req, res) {
 			} else {
 				sendPath(targetPath, req, res);
 			}
-		} else {
+		} else {	
 			res.send(500, err);
 		}
 	});
@@ -161,7 +161,7 @@ exports.create = function(req, res) {
 
 exports.destroy = function(req, res) {
 	Path.remove(({
-		_id: req.param('pathsNew')
+		_id: req.param('pathId')
 	}), function(err) {
 		if (!err) {
 			res.send(204);
@@ -175,7 +175,7 @@ exports.edit = function(req, res) {
 	var srcSegment;
 	var targetIndex = +req.param('targetIndex') || 0;
 	var targetSegment;
-	Path.findById(req.param('pathsNew'), function(err, targetPath) {
+	Path.findById(req.param('pathId'), function(err, targetPath) {
 		if (!err) {
 			var operationType = req.param('operationType');
 			if (!operationType)

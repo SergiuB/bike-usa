@@ -1,23 +1,23 @@
 'use strict';
 
-myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', 'adminMapData',
-  function($scope, $rootScope, mapService, mapFeatureConfig, adminMapData) {
+myApp.controller('AdminMapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', 'adminMapData', 'PathDataStore',
+  function($scope, $rootScope, mapService, mapFeatureConfig, adminMapData, PathDataStore) {
     var me = this;
     var pathsShown = {};
-    var mapOptions = {
-      zoom: 4,
-      center: mapService.createLatLng({
-        lat: 38.50,
-        long: -90.50
-      }),
+    $scope.map = {
+      center: {
+        latitude: 38.50,
+        longitude: -90.50
+      },
+      zoom: 4
     };
-    var map = mapService.createMap('adminMap', mapOptions);
-    $rootScope.$on('PathDataStore_selectedChanged', function(ev, path, selected) {
-      if (selected)
-        showPath(path);
-      else
-        hidePath(path);
-    });
+
+    // $rootScope.$on('PathDataStore_selectedChanged', function(ev, path, selected) {
+    //   if (selected)
+    //     showPath(path);
+    //   else
+    //     hidePath(path);
+    // });
     $rootScope.$on('segmentCtrl_pathChanged', refreshPath);
     $rootScope.$on('PathDataStore_hideMarkersChanged', function(ev, path, hideMarkers) {
       if (pathsShown[path._id]) {

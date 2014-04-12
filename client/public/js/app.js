@@ -8,7 +8,8 @@ var myApp = angular.module('myApp', [
     'ui.bootstrap',
     'ngResource',
     'ngRoute',
-    'angularFileUpload']).
+    'angularFileUpload',
+    'google-maps']).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
       
     $routeProvider.

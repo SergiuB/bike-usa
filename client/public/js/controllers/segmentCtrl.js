@@ -10,9 +10,11 @@ myApp.controller('SegmentCtrl', ['$scope', '$rootScope', '$http', 'SegmentModel'
 				$scope.targetPathId = null;
 		});
 
-		$scope.getSelectedSegmentDistance = function () {
-			var locations = $scope.adminMapData.selectedSegmentData.segment.locations;
-			return locations[locations.length-1].distStart;
+		$scope.getSelectedSegmentDistance = function() {
+			if ($scope.adminMapData.selectedSegmentData) {
+				var locations = $scope.adminMapData.selectedSegmentData.segment.locations;
+				return locations[locations.length - 1].distStart;
+			}
 		};
 
 		$scope.getOtherPaths = function() {

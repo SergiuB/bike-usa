@@ -8,6 +8,9 @@ myApp.controller('AdminCtrl', ['$scope', '$upload', 'NewPathModel', 'PathDataSto
     $scope.getPathUI = function(pathOrPathId) {
       return PathDataStore.getPathUI(pathOrPathId);
     };
+    $scope.getPath = function(pathOrPathId) {
+      return PathDataStore.getPath(pathOrPathId);
+    };
 
     adminOptionsService.load().then(function(options) {
       $scope.adminOptions = options;

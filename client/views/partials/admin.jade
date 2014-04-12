@@ -42,10 +42,22 @@ div.container.theme-showcase
           input(ng-model='$parent.getPathUI(path).hideMarkers', ng-change="$parent.toggleMarkers(path)", type="checkbox")
           span(style="background-color: {{path.getColor()}}") Hide markers
           br
+          button.btn.btn-default(type="button",ng-model="showCopyOptions", btn-checkbox)
+            span Copy to other path
           button.btn.btn-default(type="button",ng-click="$parent.duplicate(path)",tooltip="Duplicate path")
             span Duplicate
           button.btn.btn-default(type="button",ng-click="$parent.removePath(path)",tooltip="Delete path")
             span.glyphicon.glyphicon-remove
+          div(ng-show="showCopyOptions", ng-repeat='otherPath in getOtherPaths(path)')
+            input(type="radio", name='targetPath', ng-model="$parent.targetPathId", value="{{otherPath._id}}") 
+            span(style="background-color: {{otherPath.getColor()}}") {{otherPath.name}}
+          div(ng-show="showCopyOptions&&targetPathId") 
+            p Enter segment in target path after which this segment will be copied:
+            div.btn-group
+              button.btn.btn-default(type="button", tooltip="Copy as first segment in path {{getPath(targetPathId).name}}", ng-click="copyPathToTargetPath(path, targetPathId)")
+                span First
+              button.btn.btn-default(ng-repeat='segment in getPath(targetPathId).segments', type="button", tooltip="Copy after segment {{segment.name}} in path {{getPath($parent.targetPathId).name}}", ng-click="copyPathToTargetPath(path, $parent.targetPathId, $index + 1)")
+                span {{$index + 1}}
     div.row.well(ng-controller='SegmentCtrl', ng-show='adminMapData.selectedSegmentData')
         p Segment {{adminMapData.selectedSegmentData.segmentIndex+1}} ({{adminMapData.selectedSegmentData.segment.name}}) in path {{adminMapData.selectedSegmentData.path.name}}
         p Distance {{getSelectedSegmentDistance() | inKm}} km

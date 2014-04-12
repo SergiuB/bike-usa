@@ -14,14 +14,13 @@ div.container.theme-showcase
             span(ng-show="uploadError") Error
         div(ng-show="uploadError") {{uploadError}}
     div.row(ng-controller='AdminMapCtrl')
-      google-map.col-md-9(center="map.center", zoom="map.zoom", draggable="true")
-        polyline(ng-repeat='path in paths', path='path.getCoords()', stroke='path.getStroke()', geodesic="true", visible="getPathUI(path).selected === true")
+      #adminMap.col-md-9
       div.col-md-3
         div.well.pathSelector(ng-controller="PathSelectCtrl")
           h3 Available paths
           div(ng-repeat='path in paths')
             div(style="display: inline-block; width: 10px; height: 10px; background-color: {{path.getColor()}}")
-            input(ng-model='$parent.getPathUI(path).selected', ng-change="$parent.firePathSelectionChange(path)", type="checkbox")
+            input(ng-model='$parent.getPathUI(path).selected', ng-change="$parent.togglePathSelection(path)", type="checkbox")
             span {{path.name}}
     div.row(ng-controller='PathCtrl')
       div.pathTile.pull-left(ng-repeat='path in paths', ng-show="getPathUI(path).selected", style="background-color: {{path.getColor()}}")
@@ -40,7 +39,7 @@ div.container.theme-showcase
         //-   p Start coord:  {{path.getStartCoord()}}
         //-   p End coord:  {{path.getEndCoord()}}
         div.pathOperations
-          input(ng-model='$parent.getPathUI(path).hideMarkers', ng-change="$parent.fireMarkerChange(path)", type="checkbox")
+          input(ng-model='$parent.getPathUI(path).hideMarkers', ng-change="$parent.toggleMarkers(path)", type="checkbox")
           span(style="background-color: {{path.getColor()}}") Hide markers
           br
           button.btn.btn-default(type="button",ng-click="$parent.duplicate(path)",tooltip="Duplicate path")

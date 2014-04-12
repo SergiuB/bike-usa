@@ -2,7 +2,7 @@
 
 myApp.controller('PathSelectCtrl', ['$scope', '$rootScope', 'PathDataStore',
 	function($scope, $rootScope, PathDataStore) {
-		$scope.firePathSelectionChange = function(path) {
+		$scope.togglePathSelection = function(path) {
 			PathDataStore.firePathUIPropertyChangeEvent(path,'selected');
 		};
 	}

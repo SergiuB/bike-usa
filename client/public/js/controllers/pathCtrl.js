@@ -2,7 +2,7 @@
 
 myApp.controller('PathCtrl', ['$scope', '$rootScope', '$http', 'NewPathModel', 'PathDataStore',
 	function($scope, $rootScope, $http, NewPathModel, PathDataStore) {
-		$scope.fireMarkerChange = function(path) {
+		$scope.toggleMarkers = function(path) {
 			PathDataStore.firePathUIPropertyChangeEvent(path, 'hideMarkers');
 		};
 

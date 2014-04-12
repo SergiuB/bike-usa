@@ -47,33 +47,16 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
       return assignedColors[me._id];
     };
 
-    NewPathModel.prototype.getCoords = function() {
-      var me = this;
-      if (!me.coords) {
-        me.coords = [];
-        me.segments.forEach(function(segment) {
-          me.coords.push({
-            latitude: segment.startCoord[0],
-            longitude: segment.startCoord[1]
-          }, {
-            latitude: segment.endCoord[0],
-            longitude: segment.endCoord[1]
-          });
-        });
+    var hashCode = function(str) {
+      var hash = 0,
+        l, i, char;
+      if (str.length === 0) return hash;
+      for (i = 0, l = str.length; i < l; i++) {
+        char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0; // Convert to 32bit integer
       }
-      return me.coords;
-    };
-
-    NewPathModel.prototype.getStroke = function() {
-      var me = this;
-      if (!me.stroke) {
-        me.stroke = {
-          color: me.getColor(),
-          opacity: 1.0,
-          weight: 3
-        };
-      }
-      return me.stroke;
+      return hash;
     };
 
     function randomRgbColor(h, s, v) {

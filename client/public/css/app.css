@@ -2,7 +2,7 @@
   height: 450px;
   margin-bottom: 20px;
 }
-.angular-google-map-container {
+#adminMap {
   height: 500px;
   margin-top: 20px;
   margin-bottom: 20px;

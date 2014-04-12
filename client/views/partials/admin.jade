@@ -48,7 +48,7 @@ div.container.theme-showcase
             span.glyphicon.glyphicon-remove
     div.row.well(ng-controller='SegmentCtrl', ng-show='adminMapData.selectedSegmentData')
         p Segment {{adminMapData.selectedSegmentData.segmentIndex+1}} ({{adminMapData.selectedSegmentData.segment.name}}) in path {{adminMapData.selectedSegmentData.path.name}}
-        p Distance {{adminMapData.selectedSegmentData.segment.distance | inKm}} km
+        p Distance {{getSelectedSegmentDistance() | inKm}} km
         div.btn-group
           button.btn.btn-default(type="button",ng-model="showCopyOptions", btn-checkbox)
             span Copy to other path

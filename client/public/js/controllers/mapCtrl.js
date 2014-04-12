@@ -8,7 +8,10 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     var ABSTRACTMAP = 'abstractmap';
     var map = mapService.createMap('map', {
       zoom: minZoomLevel,
-      center: mapService.createLatLng({lat: 38.50, long: -90.50}),
+      center: mapService.createLatLng({
+        lat: 38.50,
+        long: -90.50
+      }),
       panControl: false,
       zoomControl: false,
       //mapTypeControl: false,
@@ -129,17 +132,40 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       mapService.fitBounds(map, strictBounds);
     });
 
+    var route;
+
+    function setRoutePath(latLongCoordinates) {
+      if (!route) {
+        route = mapService.createPolyline({
+          path: latLongCoordinates,
+          map: map,
+          geodesic: true,
+          strokeColor: '#2790B0',
+          strokeOpacity: 1.0,
+          strokeWeight: 3,
+          zIndex: 1
+        });
+      } else {
+        route.setPath(latLongCoordinates);
+      }
+    }
+
     $rootScope.$on('pathLoaded', function(ev, path) {
       var latLongCoordinates = mapService.createLatLngArray(path.points);
-      var route = mapService.createPolyline({
-        path: latLongCoordinates,
-        map: map,
-        geodesic: true,
-        strokeColor: '#2790B0',
-        strokeOpacity: 1.0,
-        strokeWeight: 3,
-        zIndex: 1
+
+      setRoutePath(latLongCoordinates);
+
+      var startMarker = mapService.createTargetMarker({
+        position: latLongCoordinates[0],
+        animation: google.maps.Animation.DROP,
+        map: map
       });
+    });
+
+    $rootScope.$on('segmentsLoaded', function(ev, path) {
+      var latLongCoordinates = mapService.createLatLngArray(path.points);
+
+      setRoutePath(latLongCoordinates);
 
       var startMarker = mapService.createTargetMarker({
         position: latLongCoordinates[0],

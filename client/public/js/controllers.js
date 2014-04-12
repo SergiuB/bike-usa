@@ -1,22 +1,5 @@
 'use strict';
 
-myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'PathModel',
-  function($scope, $http, $rootScope, estimationService, PathModel) {
-    PathModel.get({
-      id: 1
-    }, function(path) {
-      $rootScope.currentPath = path;
-      $rootScope.$emit('pathLoaded', path);
-      var dayEstimation = estimationService.computeDayEstimation(path.points);
-      $rootScope.$emit('estimationsComputed', dayEstimation);
-
-      $scope.totalDistance = path.getTotalDistance();
-      $scope.currentPointIndex = 4000;
-      $scope.currentDistance = path.points[$scope.currentPointIndex].distStart;
-      $scope.daysLeft = dayEstimation.length;
-    });
-  }
-]);
 
 
 

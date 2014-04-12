@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('myApp.services').factory('NewPathModel', ['$resource',
-  function($resource) {
+angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentModel', '$q',
+  function($resource, SegmentModel, $q) {
 
     var colors = [];
     var nextColorIdx = 0;
@@ -39,6 +39,115 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
       }
     });
 
+    NewPathModel.prototype.setPointsFromSegments = function(segments) {
+      var me = this;
+      me.points = [];
+      me.distanceToPointMap = {};
+      var segment;
+      var distance = 0;
+      var point;
+      for (var i = 0; i < segments.length; i++) {
+        segment = segments[i];
+        for (var j = 0; j < segment.locations.length; j++) {
+          point = angular.extend({}, segment.locations[j]);
+          // convert distance from the start of segment in distance from start of path
+          point.distStart += distance;
+          me.points.push(point);
+          me.distanceToPointMap[point.distStart] = point;
+        }
+        distance += segment.locations[segment.locations.length - 1].distStart;
+      }
+    };
+
+    NewPathModel.prototype.loadSegments = function() {
+      var deferred = $q.defer();
+      var me = this;
+      me.segmentsDeep = SegmentModel.query({
+        pathId: me._id
+      }, function(segmentsDeep) {
+        deferred.resolve();
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;
+    };
+
+    NewPathModel.prototype.getPointsWithElevation = function() {
+      return this.points.filter(function(point) {
+        return angular.isDefined(point.elevation);
+      });
+    };
+    NewPathModel.prototype.getTotalDistance = function() {
+      var points = this.points;
+      if (points && points.length)
+        return Math.ceil(points[points.length - 1].distStart);
+    };
+    NewPathModel.prototype.getPointForDistance = function(distance) {
+      var distanceStr = (typeof distance === 'number') ? round2Decimals(distance).toString() : distance,
+        distanceNum = (typeof distance === 'string') ? round2Decimals(parseFloat(distance)) : distance;
+
+      if (this.distanceToPointMap) {
+        var point = this.distanceToPointMap[distanceStr];
+        if (!point) {
+          point = this.getPointForDistance(distanceNum + 0.01);
+        }
+        return point;
+      }
+    };
+    NewPathModel.prototype.getElevationGainBetweenPoints = function(targetPoints) {
+      var points = this.points;
+      var elevationGain = [],
+        targetIndex = 0,
+        targetPoint,
+        currentPoint,
+        prevPoint,
+        gainBuffer = 0;
+      for (var i = 0; i < points.length; i++) {
+        targetPoint = targetPoints[targetIndex];
+        currentPoint = points[i];
+        if (currentPoint.distStart === targetPoint.distStart) {
+          elevationGain.push(gainBuffer);
+          targetIndex++;
+          gainBuffer = 0;
+        }
+        gainBuffer += (prevPoint && currentPoint.elevation) ? Math.max(currentPoint.elevation - prevPoint.elevation, 0) : 0;
+        if (currentPoint.elevation) {
+          prevPoint = currentPoint;
+        }
+      }
+      return elevationGain;
+    };
+    NewPathModel.prototype.getAllPointsBetween = function(pointA, pointB, predicateFn) {
+      function isBetweenPoints(pointA, pointB, target) {
+        var isBetween = (((target.distStart > pointA.distStart) && (target.distStart < pointB.distStart)) ||
+          ((target.distStart < pointA.distStart) && (target.distStart > pointB.distStart)));
+        if (predicateFn) {
+          return isBetween && predicateFn(target);
+        } else {
+          return isBetween;
+        }
+      }
+      return this.points.filter(isBetweenPoints.bind(null, pointA, pointB));
+    };
+
+    NewPathModel.prototype.getSamplePoints = function(startDistance, endDistance, count) {
+      var me = this;
+      var points = me.getPointsWithElevation(),
+        pointA = me.getPointForDistance(startDistance),
+        pointB = me.getPointForDistance(endDistance);
+      var pointsBetween = me.getAllPointsBetween(pointA, pointB, function(point) {
+        return point.elevation;
+      });
+      var everyXPoint = Math.floor(pointsBetween.length / count) || 1;
+      var filtered = pointsBetween.filter(function(item, index) {
+        if (index === 0 || index === pointsBetween.length - 1) {
+          return true;
+        }
+        return index % everyXPoint === 0;
+      });
+      return filtered;
+    };
+
     NewPathModel.prototype.getColor = function() {
       var me = this;
       if (!assignedColors[me._id]) {
@@ -47,7 +156,7 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
       return assignedColors[me._id];
     };
 
-    var hashCode = function(str) {
+    function hashCode(str) {
       var hash = 0,
         l, i, char;
       if (str.length === 0) return hash;
@@ -57,7 +166,7 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
         hash |= 0; // Convert to 32bit integer
       }
       return hash;
-    };
+    }
 
     function randomRgbColor(h, s, v) {
       var h_i = Math.floor(h * 6);
@@ -99,6 +208,10 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource',
           break;
       }
       return '#' + Math.floor(r * 256).toString(16) + Math.floor(g * 256).toString(16) + Math.floor(b * 256).toString(16);
+    }
+
+    function round2Decimals(num) {
+      return Math.floor(num * 100) / 100;
     }
 
     return NewPathModel;

@@ -57,8 +57,8 @@ angular.module('myApp.services').service('estimationService', function($q, $root
       if (lastPoint) {
         var elevationChange = curPoint.elevation - lastPoint.elevation,
           distanceChange = curPoint.distStart - lastPoint.distStart,
-          grade = elevationChange / (distanceChange * 1000),
-          time = getEstimatedTime(POWER, grade, 0, distanceChange, curPoint.elevation);
+          grade = elevationChange / distanceChange,
+          time = getEstimatedTime(POWER, grade, 0, distanceChange / 1000, curPoint.elevation);
         timeThisDay += time;
       }
       if (timeThisDay > MAX_TIME_PER_DAY || i === points.length - 1) {

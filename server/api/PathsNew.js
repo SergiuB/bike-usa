@@ -78,7 +78,7 @@ var getCompactSegment = function(segment, segmentUrl) {
 		name: segment.name,
 		startCoord: [segment.locations[0].latitude, segment.locations[0].longitude],
 		endCoord: [segment.locations[segment.locations.length - 1].latitude, segment.locations[segment.locations.length - 1].longitude],
-		distance: segment.locations[segment.locations.length - 1].distStart
+		locations: [segment.locations[0], segment.locations[segment.locations.length - 1]]
 	};
 };
 

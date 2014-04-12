@@ -12,16 +12,16 @@ div.container.theme-showcase
         .elevationChart.row(id="elevationChart", ng-controller='ChartCtrl')
       #sidebar.col-xs-6.col-sm-3.sidebar-offcanvas.text-center.stats
         p.mainStat Total distance (km)
-        p.mainStatValue {{totalDistance | number:0}}
+        p.mainStatValue {{totalDistance | inKm}}
         div.progress
-          div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="80",aria-valuemin="0",aria-valuemax="100",style="width: 80%")
+          div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="{{currentDistance *100 / totalDistance}}",aria-valuemin="0",aria-valuemax="100",style="width: {{currentDistance *100 / totalDistance}}%")
           span.sr-only 80% Complete
         p.normalStat Completed distance (km)
-        p.normalStatValue {{currentDistance | number:0}}
+        p.normalStatValue {{currentDistance | inKm}}
         p.normalStat Average distance/day (km)
-        p.normalStatValue {{totalDistance / daysLeft | number:0}}
+        p.normalStatValue {{totalDistance / daysLeft | inKm}}
         p.normalStat Remaining distance (km)
-        p.normalStatValue {{totalDistance - currentDistance | number:0}}
+        p.normalStatValue {{totalDistance - currentDistance | inKm}}
         p.normalStat Estimated days left
         p.normalStatValue {{daysLeft}}
         p.normalStat Money spent so far ($)

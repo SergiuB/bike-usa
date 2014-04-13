@@ -38,15 +38,15 @@ module.exports = function(app, passport) {
 	app.get('/api/pathsNew/:pathId/segment/:segmentId', segments.show);
 	app.delete('/api/pathsNew/:pathId/segment/:segmentId', Auth.isAuthenticated, segments.destroy);
 
-	app.post("/signup", Auth.userExist, function (req, res, next) {
-		User.signup(req.body.email, req.body.password, function(err, user){
-			if(err) throw err;
-			req.login(user, function(err){
-				if(err) return next(err);
-				return res.redirect("admin");
-			});
-		});
-	});
+	// app.post("/signup", Auth.userExist, function (req, res, next) {
+	// 	User.signup(req.body.email, req.body.password, function(err, user){
+	// 		if(err) throw err;
+	// 		req.login(user, function(err){
+	// 			if(err) return next(err);
+	// 			return res.redirect("admin");
+	// 		});
+	// 	});
+	// });
 
 	app.post("/login", passport.authenticate('local', {
 		successRedirect: "/admin",

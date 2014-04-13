@@ -4,12 +4,11 @@
 
 var mongoose = require('mongoose'),
 	url = require('url'),
-	config = require('../config'),
+	env = process.env.NODE_ENV || 'development',
+	config = require('../config')[env],
 	// If running on Heroku using MongoHQ, MONGOHQ_URL environment variable should be set;
 	// ohtherwise fallback to default local installation of MongoDB.
-	uristring = process.env.MONGOHQ_URL || config.development.mongo_auth_uri,
-	connection_uri = url.parse(uristring),
-	db_name = connection_uri.pathname.replace(/^\//, ''),
+	uristring = process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || config.mongo_auth_uri,
 	options = { // enable connection keepalive
 		server: {
 			auto_reconnect: false, // don't let native mongodb client reconnect
@@ -90,6 +89,7 @@ var internalConnect = function(reconnect, callback) {
 
 	var verb = reconnect ? 'reconnect' : 'connect';
 
+	console.log('Connecting to database at ' + uristring);
 	dbConnection.open(uristring, options, function(err, res) {
 		if (err) {
 			console.error('Failed to ' + verb + ' to DB on attempt #' + attempts + ": " + err);

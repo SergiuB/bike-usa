@@ -16,7 +16,10 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       zoomControl: false,
       //mapTypeControl: false,
       scaleControl: false,
-      streetViewControl: false,
+      streetViewControl: true,
+      streetViewControlOptions: {
+        position: google.maps.ControlPosition.LEFT_CENTER
+      },
       overviewMapControl: false,
       mapTypeControlOptions: {
         mapTypeIds: [ABSTRACTMAP, google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.TERRAIN]
@@ -52,14 +55,14 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       map.setCenter(new google.maps.LatLng(y, x));
     });
 
-    var ctaLayer = mapService.createAndShowKmlLayer(map, 'https://sites.google.com/site/sergiukmlfiles/kml-files/us_states_8.kml?attredirects=0&d=1');
+    // var ctaLayer = mapService.createAndShowKmlLayer(map, 'https://sites.google.com/site/sergiukmlfiles/kml-files/us_states_8.kml?attredirects=0&d=1');
 
-    mapService.addEventListener(map, 'maptypeid_changed', function() {
-      if (map.getMapTypeId() !== ABSTRACTMAP)
-        ctaLayer.setMap(null);
-      else
-        ctaLayer.setMap(map);
-    });
+    // mapService.addEventListener(map, 'maptypeid_changed', function() {
+    //   if (map.getMapTypeId() !== ABSTRACTMAP)
+    //     ctaLayer.setMap(null);
+    //   else
+    //     ctaLayer.setMap(map);
+    // });
 
     mapService.setCustomMapType(map, ABSTRACTMAP, mapFeatureConfig, {
       name: 'Abstract'

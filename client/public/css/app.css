@@ -1,12 +1,49 @@
+#container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.wrapper {
+  height: 100%;
+}
+
+.content {
+  padding-right: 30px;
+  height: 100%;
+}
+
+.mapAndChart {
+  padding-right: 30px;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+}
+
+.logoHolder {
+  padding: 10px;
+  position: absolute;
+  z-index: 100;
+}
+
 #map {
-  height: 450px;
+  width: 100%;
+  height: 80%;
   margin-bottom: 20px;
 }
+
+.elevationChart {
+  height: 20%;
+}
+
 #adminMap {
   height: 500px;
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+
 
 .pathSelector{
   margin: 10px;
@@ -47,6 +84,10 @@
 }
 
 #sidebar {
+ padding: 0;
+}
+
+.stats {
   background: rgba(61,64,72,1);
   background: -moz-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
   background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(61,64,72,1)), color-stop(100%, rgba(46,49,57,1)));
@@ -55,13 +96,6 @@
   background: -ms-linear-gradient(top, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
   background: linear-gradient(to bottom, rgba(61,64,72,1) 0%, rgba(46,49,57,1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d4048', endColorstr='#2e3139', GradientType=0 );
-}
-
-.mapAndChart {
-  padding-right: 30px;
-}
-
-.stats p {
   text-transform:uppercase;
   font-family: 'Pathway Gothic One', sans-serif;
 }
@@ -71,20 +105,34 @@
   font-weight: 900; 
   font-style:italic;
   color: white;
-  font-size: 48px;
+  font-size: 36px;
+  text-shadow: 2px 2px 2px black;
 }
 
 .projectTitleSmall {
-  color: rgb(140, 163, 180);
+  color: #2790B0;
   font-family: 'Chivo';
   font-weight: 400; 
   font-style:italic;
   font-size: 24px;
+  text-shadow: 2px 2px 2px black;
+  width: 1000px;
+}
+
+.titleHolder {
+  padding-top: 5px;
+  padding-left: 110px;
+}
+
+.progress {
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .mainStat {
-  color: rgb(140, 163, 180);
+  color: #0e83cd;
   font-size: 36px;
+  margin-top: 30px;
 }
 
 .normalStat {
@@ -106,9 +154,6 @@
   padding-top: 10px;
 }
 
-.elevationChart {
-  height: 200px;
-}
 
 .dayTile {
   height: 60px;
@@ -199,3 +244,125 @@
   }
 }
 
+.circular {
+  width: 100px;
+  height: 100px;
+  border-radius: 75px;
+  -webkit-border-radius: 75px;
+  -moz-border-radius: 75px;
+  background: url(http://www.dominicanablog.com/wp-content/themes/striking_r/cache/images/7000_route-66-628x299.jpg?627d91) no-repeat;
+  background-size: 100% 100%;
+  box-shadow: 1px 1px 2px black;
+  }
+  
+  
+@-webkit-keyframes spin0 {
+  0% { -webkit-transform: rotate(0deg); }
+  50% { -webkit-transform: rotate(1440deg); }
+  100% { -webkit-transform: rotate(1440deg); }
+}
+
+
+.wheelCont {
+  position: relative;
+  top: 45px;
+}
+.wheelImg {
+  width: 100px
+}
+.wheel {
+    -webkit-animation:  spin0 10s infinite;
+    width: 100%;
+    height: 100%;
+}
+
+/* Donate button */
+nav {
+  background-color: #f19f0f;
+}
+
+nav a {
+  position: relative;
+  display: inline-block;
+  outline: none;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 0 1px rgba(255,255,255,0.3);
+  margin: 10px 0px 10px 0px;
+  font-size: 24px;
+  text-transform:uppercase;
+  font-family: 'Pathway Gothic One', sans-serif;
+}
+
+nav a:hover,
+nav a:focus {
+  color: #fff;
+  text-decoration: none;
+  outline: none;
+}
+
+/* Effect 14: border switch */
+.cl-effect-14 a {
+  padding: 0 20px;
+  height: 45px;
+  line-height: 45px;
+}
+
+.cl-effect-14 a::before,
+.cl-effect-14 a::after {
+  position: absolute;
+  width: 45px;
+  height: 2px;
+  background: #fff;
+  content: '';
+  opacity: 0.2;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+  pointer-events: none;
+}
+
+.cl-effect-14 a::before {
+  top: 0;
+  left: 0;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  transform: rotate(90deg);
+  -webkit-transform-origin: 0 0;
+  -moz-transform-origin: 0 0;
+  transform-origin: 0 0;
+}
+
+.cl-effect-14 a::after {
+  right: 0;
+  bottom: 0;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  transform: rotate(90deg);
+  -webkit-transform-origin: 100% 0;
+  -moz-transform-origin: 100% 0;
+  transform-origin: 100% 0;
+}
+
+.cl-effect-14 a:hover::before,
+.cl-effect-14 a:hover::after,
+.cl-effect-14 a:focus::before,
+.cl-effect-14 a:focus::after {
+  opacity: 1;
+}
+
+.cl-effect-14 a:hover::before,
+.cl-effect-14 a:focus::before {
+  left: 50%;
+  -webkit-transform: rotate(0deg) translateX(-50%);
+  -moz-transform: rotate(0deg) translateX(-50%);
+  transform: rotate(0deg) translateX(-50%);
+}
+
+.cl-effect-14 a:hover::after,
+.cl-effect-14 a:focus::after {
+  right: 50%;
+  -webkit-transform: rotate(0deg) translateX(50%);
+  -moz-transform: rotate(0deg) translateX(50%);
+  transform: rotate(0deg) translateX(50%);
+}

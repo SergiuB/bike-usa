@@ -1,39 +1,48 @@
 'use strict';
 
 myApp.constant('mapFeatureConfig', [{
-  "featureType": "landscape",
-  "stylers": [{
-    "color": "#2d3038"
-  }]
-}, {
   "featureType": "water",
   "stylers": [{
     "color": "#2d3038"
   }]
 }, {
-  "featureType": "poi",
+  "featureType": "landscape",
   "stylers": [{
-    "color": "#2d3038"
+    "color": "#9E9E9E"
   }]
 }, {
-  "featureType": "road",
+  "featureType": "poi",
+  "elementType": "geometry",
   "stylers": [{
+    "hue": "#ff0000"
+  }, {
+    "saturation": -100
+  }, {
+    "color": "#808080"
+  }, {
     "visibility": "off"
   }]
 }, {
   "featureType": "administrative",
+  "elementType": "geometry.fill",
   "stylers": [{
     "visibility": "off"
   }]
 }, {
-  "featureType": "administrative.country",
+  "featureType": "road",
+  "elementType": "labels",
   "stylers": [{
     "visibility": "off"
   }]
 }, {
-  "featureType": "administrative.province",
+  "featureType": "road",
   "stylers": [{
-    "visibility": "off"
+    "color": "#808080"
+  }]
+}, {
+  "elementType": "labels",
+  "stylers": [{
+    "weight": 0.1
   }]
 }, {
   "featureType": "transit",
@@ -41,8 +50,7 @@ myApp.constant('mapFeatureConfig', [{
     "visibility": "off"
   }]
 }, {
-  "featureType": "administrative.province",
-  "elementType": "labels",
+  "featureType": "administrative.neighborhood",
   "stylers": [{
     "visibility": "off"
   }]

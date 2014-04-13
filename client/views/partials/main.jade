@@ -1,40 +1,45 @@
-
-div.navbar.navbar-fixed-top.navbar-inverse(role="navigation")
-  div.container
-    a.navbar-brand(href="#") support a child's education
-
-div.container.theme-showcase
-    div.row
-      div.col-xs-12.col-sm-9.mapAndChart
-        p.projectTitle Follow my trail
-        p.projectTitleSmall As I cross the USA from east to west on my bike
-        #map.row(ng-controller='MapCtrl')
-        .elevationChart.row(id="elevationChart", ng-controller='ChartCtrl')
-      #sidebar.col-xs-6.col-sm-3.sidebar-offcanvas.text-center.stats
-        p.mainStat Total distance (km)
-        p.mainStatValue {{totalDistance | inKm}}
-        div.progress
-          div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="{{currentDistance *100 / totalDistance}}",aria-valuemin="0",aria-valuemax="100",style="width: {{currentDistance *100 / totalDistance}}%")
-          span.sr-only 80% Complete
-        p.normalStat Completed distance (km)
-        p.normalStatValue {{currentDistance | inKm}}
-        p.normalStat Average distance/day (km)
-        p.normalStatValue {{totalDistance / daysLeft | inKm}}
-        p.normalStat Remaining distance (km)
-        p.normalStatValue {{totalDistance - currentDistance | inKm}}
-        p.normalStat Estimated days left
-        p.normalStatValue {{daysLeft}}
-        p.normalStat Money spent so far ($)
-        p.normalStatValue 4262
-    div.row.carouselContainer(ng-controller='DayCarouselCtrl')
-      div.col-md-12(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
-        carousel.row
-          slide(ng-repeat='slide in slides', active='slide.active')
-            .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)")
-              .dayTileInner
-                .col-md-5.noPadding
-                  p.day Day {{day.index + 1}}
-                  p.date {{day.date}}
-                .col-md-7.dayStats
-                  p {{day.distance | number:0}} km
-                  p {{day.elevationGain | number:0}} m
+.wrapper.container-fluid.theme-showcase
+    .wrapper
+      .wrapper.col-sm-10.content
+        .logoHolder
+          .circular.logo.pull-left
+            .wheel
+              img.wheelImg(src="resource/icons/wheel2.png")
+          .titleHolder
+            p.projectTitle Follow my trail
+            p.projectTitleSmall As I cross the USA from east to west on my bike
+        .wrapper.mapAndChart
+          #map(ng-controller='MapCtrl')
+          .elevationChart(id="elevationChart", ng-controller='ChartCtrl')
+      #sidebar.col-sm-2.sidebar-offcanvas.text-center
+        nav#cl-effect-14.cl-effect-14
+          a(href="#") 
+            span(data-hover="Help support a child's education") Help support a child's education
+        .stats
+          p.mainStat Total distance (km)
+          p.mainStatValue {{totalDistance | inKm}}
+          div.progress
+            div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="{{currentDistance *100 / totalDistance}}",aria-valuemin="0",aria-valuemax="100",style="width: {{currentDistance *100 / totalDistance}}%")
+            span.sr-only 80% Complete
+          p.normalStat Completed distance (km)
+          p.normalStatValue {{currentDistance | inKm}}
+          p.normalStat Average distance/day (km)
+          p.normalStatValue {{totalDistance / daysLeft | inKm}}
+          p.normalStat Remaining distance (km)
+          p.normalStatValue {{totalDistance - currentDistance | inKm}}
+          p.normalStat Estimated days left
+          p.normalStatValue {{daysLeft}}
+          p.normalStat Money spent so far ($)
+          p.normalStatValue 4262
+    //- div.row.carouselContainer(ng-controller='DayCarouselCtrl')
+    //-   div.col-md-12(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
+    //-     carousel.row
+    //-       slide(ng-repeat='slide in slides', active='slide.active')
+    //-         .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)")
+    //-           .dayTileInner
+    //-             .col-md-5.noPadding
+    //-               p.day Day {{day.index + 1}}
+    //-               p.date {{day.date}}
+    //-             .col-md-7.dayStats
+    //-               p {{day.distance | number:0}} km
+    //-               p {{day.elevationGain | number:0}} m

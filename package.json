@@ -38,6 +38,6 @@
 		"sinon": "latest"
 	},
 	"scripts": {
-		"nopostinstall": "./node_modules/.bin/bower install"
+		"postinstall": "./node_modules/.bin/bower install"
 	}
 }

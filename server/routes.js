@@ -3,6 +3,7 @@ var pathsNew = require('./api/PathsNew');
 var adminOptions = require('./api/AdminOptions');
 var paths = require('./api/Paths');
 var segments = require('./api/Segments');
+var coordinates = require('./api/Coordinates');
 var db = require('./db/db'),
     User = db.connection.model('User');
 
@@ -26,8 +27,7 @@ module.exports = function(app, passport) {
 
 	// JSON API
 	app.resource('/api/paths', require('./api/Paths.js'));
-	app.resource('/api/coordinates', require('./api/Coordinates.js'));
-
+	
 	app.get('/api/pathsNew', pathsNew.index);
 	app.get('/api/pathsNew/:pathId', pathsNew.show);
 	app.get('/api/pathsNew/:pathId/edit', Auth.isAuthenticated, pathsNew.edit);
@@ -37,6 +37,10 @@ module.exports = function(app, passport) {
 	app.get('/api/pathsNew/:pathId/segment', segments.index);
 	app.get('/api/pathsNew/:pathId/segment/:segmentId', segments.show);
 	app.delete('/api/pathsNew/:pathId/segment/:segmentId', Auth.isAuthenticated, segments.destroy);
+
+
+	app.get('/api/coordinates', coordinates.index);
+	app.post('/api/coordinates', coordinates.create);
 
 	// app.post("/signup", Auth.userExist, function (req, res, next) {
 	// 	User.signup(req.body.email, req.body.password, function(err, user){

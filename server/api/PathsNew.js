@@ -96,9 +96,9 @@ exports.index = function(req, res) {
 					})
 				};
 			});
-			return res.send(newPaths);
+			res.send(newPaths);
 		} else {
-			return console.log(err);
+			res.send(500, err);
 		}
 	});
 };

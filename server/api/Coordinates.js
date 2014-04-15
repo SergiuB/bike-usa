@@ -33,3 +33,16 @@ exports.create = function(req, res) {
 
 	res.send(coordinate);
 };
+
+exports.getLast = function(req, res) {
+	GpsReading.find(function(err, gpsReadings) {
+		if (!err) {
+			if (gpsReadings.length)
+				res.send(gpsReadings[gpsReadings.length - 1]);
+			else 
+				res.send(500, 'No GPS reading so far');
+		} else {
+			res.send(500, err);
+		}
+	});
+};

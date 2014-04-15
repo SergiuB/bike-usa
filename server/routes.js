@@ -30,6 +30,7 @@ module.exports = function(app, passport) {
 	
 	app.get('/api/pathsNew', pathsNew.index);
 	app.get('/api/pathsNew/:pathId', pathsNew.show);
+	app.get('/api/pathsNew/:pathId/point', pathsNew.getPoints);
 	app.get('/api/pathsNew/:pathId/edit', Auth.isAuthenticated, pathsNew.edit);
 	app.post('/api/pathsNew', Auth.isAuthenticated, pathsNew.create);
 	app.delete('/api/pathsNew/:pathId', Auth.isAuthenticated, pathsNew.destroy);
@@ -41,6 +42,7 @@ module.exports = function(app, passport) {
 
 	app.get('/api/coordinates', coordinates.index);
 	app.post('/api/coordinates', coordinates.create);
+	app.get('/api/coordinates/last', coordinates.getLast);
 
 	// app.post("/signup", Auth.userExist, function (req, res, next) {
 	// 	User.signup(req.body.email, req.body.password, function(err, user){

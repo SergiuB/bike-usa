@@ -14,7 +14,11 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
         max = e.max;
       }
 
-      var newData = $rootScope.currentPath.getSamplePoints(min, max, 500).map(function(point) {
+      var pointA = $rootScope.currentPath.getPointForDistance(min);
+      var pointB = $rootScope.currentPath.getPointForDistance(max);
+
+
+      var newData = $rootScope.currentPath.getSamplePoints(pointA, pointB, 500).map(function(point) {
         return [point.distStart, point.elevation];
       });
       var chart = $('#elevationChart').highcharts();
@@ -26,9 +30,8 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
     var firstPoint, lastPoint;
     $rootScope.$on('estimationsComputed', function(ev, endOfDayPoints) {
       var path = $rootScope.currentPath;
-      var pointsWithElevation = path.getPointsWithElevation();
-      firstPoint = pointsWithElevation[0];
-      lastPoint = pointsWithElevation[pointsWithElevation.length - 1];
+      firstPoint = path.points[0];
+      lastPoint = path.points[path.points.length - 1];
 
       var options = {
         chart: {
@@ -62,7 +65,7 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
           }
         },
         series: [{
-          data: path.getSamplePoints(firstPoint.distStart, lastPoint.distStart, 500).map(function(point) {
+          data: path.getSamplePoints(firstPoint, lastPoint, 500).map(function(point) {
             return [point.distStart, point.elevation];
           })
         }],

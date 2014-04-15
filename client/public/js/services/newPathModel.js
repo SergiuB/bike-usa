@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentModel', '$q',
-  function($resource, SegmentModel, $q) {
+angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentModel', '$q', '$http',
+  function($resource, SegmentModel, $q, $http) {
 
     var colors = [];
     var nextColorIdx = 0;
@@ -39,10 +39,45 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
       }
     });
 
-    NewPathModel.prototype.setPointsFromSegments = function(segments) {
+    var toRad = function(degrees) {
+      return degrees * Math.PI / 180;
+    };
+
+    var getDistance = function(lat1, lon1, lat2, lon2) {
+      var R = 6371; // km
+      var dLat = toRad(lat2 - lat1);
+      var dLon = toRad(lon2 - lon1);
+      lat1 = toRad(lat1);
+      lat2 = toRad(lat2);
+
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      var d = R * c;
+
+      return Math.floor(d * 1000); // transform in meters to avoid floating point calculation issues
+    };
+
+    NewPathModel.prototype.getClosestPointToLocation = function(location) {
       var me = this;
+      var point;
+      var minDistance = 10000000;
+      var minPointIndex = 0;
+      var distance;
+      for (var i = 0; i < me.points.length; i++) {
+        point = me.points[i];
+        distance = getDistance(location.latitude, location.longitude, point.latitude, point.longitude);
+        if (distance < minDistance) {
+          minDistance = distance;
+          minPointIndex = i;
+        }
+      }
+      return minPointIndex;
+    };
+
+    var setPointsFromSegments = function(path, segments) {
+      var me = path;
       me.points = [];
-      me.distanceToPointMap = {};
       var segment;
       var distance = 0;
       var point;
@@ -53,10 +88,27 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
           // convert distance from the start of segment in distance from start of path
           point.distStart += distance;
           me.points.push(point);
-          me.distanceToPointMap[point.distStart] = point;
         }
         distance += segment.locations[segment.locations.length - 1].distStart;
       }
+    };
+
+    NewPathModel.prototype.setPointsFromSegments = function(segments) {
+      setPointsFromSegments(this, segments);
+    };
+
+    NewPathModel.load = function(pathId) {
+      var deferred = $q.defer();
+      var me = this;
+      me.get({
+        id: pathId
+      }, function(path) {
+        path.setPointsFromSegments(path.segments);
+        deferred.resolve(path);
+      }, function(error) {
+        deferred.reject(error);
+      });
+      return deferred.promise;
     };
 
     NewPathModel.prototype.loadSegments = function() {
@@ -65,9 +117,27 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
       me.segmentsDeep = SegmentModel.query({
         pathId: me._id
       }, function(segmentsDeep) {
+        me.setPointsFromSegments(segmentsDeep);
         deferred.resolve();
       }, function(error) {
         deferred.reject(error);
+      });
+      return deferred.promise;
+    };
+
+    NewPathModel.prototype.loadPoints = function() {
+      var deferred = $q.defer();
+      var me = this;
+      $http({
+        method: 'GET',
+        url: '/api/pathsNew/' + me._id + '/point'
+      }).
+      success(function(data, status, headers, config) {
+        me.points = data;
+        deferred.resolve(me.points);
+      }).
+      error(function(data, status, headers, config) {
+        deferred.reject('Failed to get points for path ' + me.name);
       });
       return deferred.promise;
     };
@@ -83,16 +153,14 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
         return Math.ceil(points[points.length - 1].distStart);
     };
     NewPathModel.prototype.getPointForDistance = function(distance) {
-      var distanceStr = (typeof distance === 'number') ? round2Decimals(distance).toString() : distance,
+      var me = this,
+        distanceStr = (typeof distance === 'number') ? round2Decimals(distance).toString() : distance,
         distanceNum = (typeof distance === 'string') ? round2Decimals(parseFloat(distance)) : distance;
 
-      if (this.distanceToPointMap) {
-        var point = this.distanceToPointMap[distanceStr];
-        if (!point) {
-          point = this.getPointForDistance(distanceNum + 0.01);
-        }
-        return point;
-      }
+      for (var i = me.points.length - 1; i >= 0; i--) {
+        if (me.points[i].distStart === distanceNum)
+          return me.points[i]
+      };
     };
     NewPathModel.prototype.getElevationGainBetweenPoints = function(targetPoints) {
       var points = this.points;
@@ -130,11 +198,9 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
       return this.points.filter(isBetweenPoints.bind(null, pointA, pointB));
     };
 
-    NewPathModel.prototype.getSamplePoints = function(startDistance, endDistance, count) {
+    NewPathModel.prototype.getSamplePoints = function(pointA, pointB, count) {
       var me = this;
-      var points = me.getPointsWithElevation(),
-        pointA = me.getPointForDistance(startDistance),
-        pointB = me.getPointForDistance(endDistance);
+      var points = me.getPointsWithElevation();
       var pointsBetween = me.getAllPointsBetween(pointA, pointB, function(point) {
         return point.elevation;
       });

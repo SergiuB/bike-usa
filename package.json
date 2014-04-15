@@ -22,7 +22,8 @@
 		"underscore": "1.6.0",
 		"console-stamp": "latest",
 	    "passport": "*",
-	    "passport-local": "*"
+	    "passport-local": "*",
+	    "memory-cache": "latest"
 	},
 	"devDependencies": {
 		"grunt-contrib-uglify": "~0.3.2",

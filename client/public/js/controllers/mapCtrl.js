@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
-  function($scope, $rootScope, mapService, mapFeatureConfig) {
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', 'GpsReadingModel',
+  function($scope, $rootScope, mapService, mapFeatureConfig, GpsReadingModel) {
     var me = this;
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
@@ -27,33 +27,33 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       mapTypeId: ABSTRACTMAP
     });
 
-    // Bounds for North America
-    var strictBounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(28.70, -127.50),
-      new google.maps.LatLng(48.85, -55.90)
-    );
+    // // Bounds for North America
+    // var strictBounds = new google.maps.LatLngBounds(
+    //   new google.maps.LatLng(28.70, -127.50),
+    //   new google.maps.LatLng(48.85, -55.90)
+    // );
 
-    // Listen for the dragend event
-    mapService.addEventListener(map, 'dragend', function() {
-      if (strictBounds.contains(map.getCenter())) return;
+    // // Listen for the dragend event
+    // mapService.addEventListener(map, 'dragend', function() {
+    //   if (strictBounds.contains(map.getCenter())) return;
 
-      // We're out of bounds - Move the map back within the bounds
+    //   // We're out of bounds - Move the map back within the bounds
 
-      var c = map.getCenter(),
-        x = c.lng(),
-        y = c.lat(),
-        maxX = strictBounds.getNorthEast().lng(),
-        maxY = strictBounds.getNorthEast().lat(),
-        minX = strictBounds.getSouthWest().lng(),
-        minY = strictBounds.getSouthWest().lat();
+    //   var c = map.getCenter(),
+    //     x = c.lng(),
+    //     y = c.lat(),
+    //     maxX = strictBounds.getNorthEast().lng(),
+    //     maxY = strictBounds.getNorthEast().lat(),
+    //     minX = strictBounds.getSouthWest().lng(),
+    //     minY = strictBounds.getSouthWest().lat();
 
-      if (x < minX) x = minX;
-      if (x > maxX) x = maxX;
-      if (y < minY) y = minY;
-      if (y > maxY) y = maxY;
+    //   if (x < minX) x = minX;
+    //   if (x > maxX) x = maxX;
+    //   if (y < minY) y = minY;
+    //   if (y > maxY) y = maxY;
 
-      map.setCenter(new google.maps.LatLng(y, x));
-    });
+    //   map.setCenter(new google.maps.LatLng(y, x));
+    // });
 
     // var ctaLayer = mapService.createAndShowKmlLayer(map, 'https://sites.google.com/site/sergiukmlfiles/kml-files/us_states_8.kml?attredirects=0&d=1');
 
@@ -114,7 +114,6 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     });
 
     var fromMouseOver = false;
-    var routeSoFar;
 
     $rootScope.$on('mouseOverWeek', function(ev, weekDays) {
       var firstPoint = weekDays[0].prevDayEstimation ? weekDays[0].prevDayEstimation : $rootScope.currentPath.points[0],
@@ -136,8 +135,10 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     });
 
     var route;
+    var currentMarker;
+    var routeSoFar;
 
-    function setRoutePath(latLongCoordinates) {
+    function showRoute(latLongCoordinates) {
       if (!route) {
         route = mapService.createPolyline({
           path: latLongCoordinates,
@@ -153,66 +154,72 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       }
     }
 
-    $rootScope.$on('pathLoaded', function(ev, path) {
+    function showRouteSoFar(latLongCoordinates) {
+      if (!routeSoFar) {
+        routeSoFar = mapService.createPolyline({
+          path: latLongCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 5,
+          zIndex: 2,
+          map: map
+        });
+      } else {
+        routeSoFar.setPath(latLongCoordinates);
+      }
+    }
+
+    $rootScope.$watch('currentPath', function(path) {
+      if (!path || !path.points)
+        return;
+      mapService.fitBounds(map, mapService.createBounds(path.points));
       var latLongCoordinates = mapService.createLatLngArray(path.points);
 
-      setRoutePath(latLongCoordinates);
+      showRoute(latLongCoordinates);
 
       var startMarker = mapService.createTargetMarker({
         position: latLongCoordinates[0],
         animation: google.maps.Animation.DROP,
+        map: map
+      });
+
+      var endMarker = mapService.createTargetMarker({
+        animation: google.maps.Animation.DROP,
+        position: latLongCoordinates[latLongCoordinates.length - 1],
         map: map
       });
     });
 
-    $rootScope.$on('segmentsLoaded', function(ev, path) {
+    $rootScope.$watch('currentPath.points', function(points) {
+      if (points && points.length) {
+        var latLongCoordinates = mapService.createLatLngArray(points);
+        showRoute(latLongCoordinates);
+      }
+    });
+
+    $rootScope.$watch('currentDistance', function(currentDistance) {
+      if (!currentDistance)
+        return;
+      var path = $rootScope.currentPath;
       var latLongCoordinates = mapService.createLatLngArray(path.points);
+      showRouteSoFar(latLongCoordinates.slice(0, $rootScope.currentPointIndex + 1));
+    });
 
-      setRoutePath(latLongCoordinates);
+    $rootScope.$watch('lastGpsReading', function(lastGpsReading) {
+      if (!lastGpsReading)
+        return;
+      var curentPoint = mapService.createLatLng(lastGpsReading);
 
-      var startMarker = mapService.createTargetMarker({
-        position: latLongCoordinates[0],
-        animation: google.maps.Animation.DROP,
-        map: map
-      });
-
-      routeSoFar = mapService.createPolyline({
-        path: [latLongCoordinates[0], latLongCoordinates[0]],
-        geodesic: true,
-        strokeColor: '#FF0000',
-        strokeOpacity: 1.0,
-        strokeWeight: 5,
-        zIndex: 2,
-        map: map
-      });
-
-      var step = 0;
-      var numSteps = 100; //Change this to set animation resolution
-      var timePerStep = 5; //Change this to alter animation speed;
-      var totalCoordsSoFar = 4000;
-      var coordsPerStep = totalCoordsSoFar / numSteps;
-      var pathSoFar = [latLongCoordinates[0]];
-      var pathForStep = [];
-      var interval = setInterval(function() {
-        step += 1;
-        if (step > numSteps) {
-          clearInterval(interval);
-          var currentMarker = mapService.createTargetMarker({
-            animation: google.maps.Animation.DROP,
-            position: latLongCoordinates[totalCoordsSoFar],
-            map: map
-          });
-          var endMarker = mapService.createTargetMarker({
-            animation: google.maps.Animation.DROP,
-            position: latLongCoordinates[latLongCoordinates.length - 1],
-            map: map
-          });
-        } else {
-          pathForStep = latLongCoordinates.slice((step - 1) * coordsPerStep, step * coordsPerStep);
-          pathSoFar = pathSoFar.concat(pathForStep);
-          routeSoFar.setPath(pathSoFar);
-        }
-      }, timePerStep);
+      if (!currentMarker) {
+        currentMarker = mapService.createTargetMarker({
+          animation: google.maps.Animation.DROP,
+          position: curentPoint,
+          map: map
+        });
+      } else {
+        currentMarker.setPosition(curentPoint);
+      }
     });
   }
 ]);

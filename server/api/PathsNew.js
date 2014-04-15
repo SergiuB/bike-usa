@@ -3,7 +3,8 @@ var Q = require("q"),
 	db = require(__dirname + '/../db/db'),
 	_ = require('underscore'),
 	elevationService = require(__dirname + '/../elevationService'),
-	Path = db.connection.model('Path');
+	Path = db.connection.model('Path'),
+	cache = require('memory-cache');
 
 function parseCoordinates(coordList) {
 	var lineStr, lineSplit, points = [];
@@ -139,7 +140,7 @@ exports.show = function(req, res) {
 			} else {
 				sendPath(targetPath, req, res);
 			}
-		} else {	
+		} else {
 			res.send(500, err);
 		}
 	});
@@ -222,4 +223,40 @@ exports.edit = function(req, res) {
 			res.send(500, err);
 		}
 	});
+};
+
+exports.getPoints = function(req, res) {
+	var pathId = req.param('pathId');
+	var pointsFromCache = cache.get(pathId + '.points');
+	if (pointsFromCache) {
+		res.send(pointsFromCache);
+	} else {
+		Path.findById(pathId, function(err, path) {
+			if (!err) {
+				var points = [];
+				var segments = path.segments;
+				var segment;
+				var distance = 0;
+				var location;
+				for (var i = 0; i < segments.length; i++) {
+					segment = segments[i];
+					for (var j = 0; j < segment.locations.length; j++) {
+						location = segment.locations[j];
+						points.push({
+							latitude: location.latitude,
+							longitude: location.longitude,
+							elevation: location.elevation,
+							distPrev: location.distPrev,
+							distStart: location.distStart + distance
+						});
+					}
+					distance += segment.locations[segment.locations.length - 1].distStart;
+				}
+				cache.put(pathId + '.points', points);
+				res.send(points);
+			} else {
+				res.send(500, err);
+			}
+		});
+	}
 };

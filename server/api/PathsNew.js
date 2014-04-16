@@ -226,6 +226,7 @@ exports.edit = function(req, res) {
 };
 
 exports.getPoints = function(req, res) {
+	var me = this;
 	var pathId = req.param('pathId');
 	var pointsFromCache = cache.get(pathId + '.points');
 	if (pointsFromCache) {
@@ -233,25 +234,7 @@ exports.getPoints = function(req, res) {
 	} else {
 		Path.findById(pathId, function(err, path) {
 			if (!err) {
-				var points = [];
-				var segments = path.segments;
-				var segment;
-				var distance = 0;
-				var location;
-				for (var i = 0; i < segments.length; i++) {
-					segment = segments[i];
-					for (var j = 0; j < segment.locations.length; j++) {
-						location = segment.locations[j];
-						points.push({
-							latitude: location.latitude,
-							longitude: location.longitude,
-							elevation: location.elevation,
-							distPrev: location.distPrev,
-							distStart: location.distStart + distance
-						});
-					}
-					distance += segment.locations[segment.locations.length - 1].distStart;
-				}
+				var points = exports.getPointsArray(path);
 				cache.put(pathId + '.points', points);
 				res.send(points);
 			} else {
@@ -259,4 +242,30 @@ exports.getPoints = function(req, res) {
 			}
 		});
 	}
+};
+
+exports.getPointsArray = function(path) {
+	var points = [];
+	var segments = path.segments;
+	var segment;
+	var distance = 0;
+	var location;
+	var index = 0;
+	for (var i = 0; i < segments.length; i++) {
+		segment = segments[i];
+		for (var j = 0; j < segment.locations.length; j++) {
+			location = segment.locations[j];
+			points.push({
+				index: index,
+				latitude: location.latitude,
+				longitude: location.longitude,
+				elevation: location.elevation,
+				distPrev: location.distPrev,
+				distStart: location.distStart + distance
+			});
+			index++;
+		}
+		distance += segment.locations[segment.locations.length - 1].distStart;
+	}
+	return points;
 };

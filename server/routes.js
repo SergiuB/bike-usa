@@ -43,6 +43,7 @@ module.exports = function(app, passport) {
 	app.get('/api/coordinates', coordinates.index);
 	app.post('/api/coordinates', coordinates.create);
 	app.get('/api/coordinates/last', coordinates.getLast);
+	app.get('/api/coordinates/generateSample', coordinates.generateSample);
 
 	// app.post("/signup", Auth.userExist, function (req, res, next) {
 	// 	User.signup(req.body.email, req.body.password, function(err, user){

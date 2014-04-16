@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', 'GpsReadingModel',
-  function($scope, $rootScope, mapService, mapFeatureConfig, GpsReadingModel) {
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
+  function($scope, $rootScope, mapService, mapFeatureConfig) {
     var me = this;
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
@@ -78,7 +78,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       if (!mouseOverMarker) {
         mouseOverMarker = mapService.createMarker();
       }
-      mouseOverMarker.setPosition(mapService.createLatLng($rootScope.currentPath.getPointForDistance(x)));
+      mouseOverMarker.setPosition(mapService.createLatLng($rootScope.currentPath.getClosestPointForDistance(x)));
       mouseOverMarker.setMap(map);
     });
     $scope.$on('mouseOutPoint', function(event, x) {
@@ -137,6 +137,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     var route;
     var currentMarker;
     var routeSoFar;
+    var realRoute;
 
     function showRoute(latLongCoordinates) {
       if (!route) {
@@ -170,6 +171,22 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       }
     }
 
+    function showRealRoute(latLongCoordinates) {
+      if (!realRoute) {
+        realRoute = mapService.createPolyline({
+          path: latLongCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 5,
+          zIndex: 3,
+          map: map
+        });
+      } else {
+        realRoute.setPath(latLongCoordinates);
+      }
+    }
+
     $rootScope.$watch('currentPath', function(path) {
       if (!path || !path.points)
         return;
@@ -191,6 +208,13 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       });
     });
 
+    $rootScope.$watchCollection('gpsReadingStore.gpsReadings', function(gpsReadings) {
+      if (gpsReadings && gpsReadings.length) {
+        var latLongCoordinates = mapService.createLatLngArray(gpsReadings);
+        showRealRoute(latLongCoordinates);
+      }
+    });
+
     $rootScope.$watch('currentPath.points', function(points) {
       if (points && points.length) {
         var latLongCoordinates = mapService.createLatLngArray(points);
@@ -198,13 +222,13 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       }
     });
 
-    $rootScope.$watch('currentDistance', function(currentDistance) {
-      if (!currentDistance)
-        return;
-      var path = $rootScope.currentPath;
-      var latLongCoordinates = mapService.createLatLngArray(path.points);
-      showRouteSoFar(latLongCoordinates.slice(0, $rootScope.currentPointIndex + 1));
-    });
+    // $rootScope.$watch('currentDistance', function(currentDistance) {
+    //   if (!currentDistance)
+    //     return;
+    //   var path = $rootScope.currentPath;
+    //   var latLongCoordinates = mapService.createLatLngArray(path.points);
+    //   showRouteSoFar(latLongCoordinates.slice(0, $rootScope.currentPointIndex + 1));
+    // });
 
     $rootScope.$watch('lastGpsReading', function(lastGpsReading) {
       if (!lastGpsReading)

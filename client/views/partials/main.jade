@@ -11,35 +11,37 @@
         .wrapper.mapAndChart
           #map(ng-controller='MapCtrl')
           .elevationChart(id="elevationChart", ng-controller='ChartCtrl')
+          .carouselContainer(ng-controller='DayCarouselCtrl')
+            div(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
+              carousel
+                slide(ng-repeat='slide in slides', active='slide.active')
+                  .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)", ng-class="{dayTileCurrent: day.isCurrentDay, dayTileEstimated: day.isEstimate}")
+                    .dayTileInner
+                      .col-md-5.noPadding
+                        p.day Day {{(slide.index * 7) + $index + 1}}
+                        p.date {{getMonthStr(day.month)}} {{day.date}}
+                      .col-md-7.dayStats
+                        p {{day.distance | inKm}} km
+                        p {{day.elevationGain | number:0}} m
       #sidebar.col-sm-2.sidebar-offcanvas.text-center
         nav#cl-effect-14.cl-effect-14
           a(href="#") 
             span(data-hover="Help support a child's education") Help support a child's education
         .stats
-          p.mainStat Total distance (km)
-          p.mainStatValue {{totalDistance | inKm}}
-          div.progress
-            div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="{{currentDistance *100 / totalDistance}}",aria-valuemin="0",aria-valuemax="100",style="width: {{currentDistance *100 / totalDistance}}%")
-            span.sr-only 80% Complete
-          p.normalStat Completed distance (km)
-          p.normalStatValue {{currentDistance | inKm}}
-          p.normalStat Average distance/day (km)
-          p.normalStatValue {{totalDistance / daysLeft | inKm}}
-          p.normalStat Remaining distance (km)
-          p.normalStatValue {{totalDistance - currentDistance | inKm}}
-          p.normalStat Estimated days left
-          p.normalStatValue {{daysLeft}}
-          p.normalStat Money spent so far ($)
-          p.normalStatValue 4262
-    //- div.row.carouselContainer(ng-controller='DayCarouselCtrl')
-    //-   div.col-md-12(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
-    //-     carousel.row
-    //-       slide(ng-repeat='slide in slides', active='slide.active')
-    //-         .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)")
-    //-           .dayTileInner
-    //-             .col-md-5.noPadding
-    //-               p.day Day {{day.index + 1}}
-    //-               p.date {{day.date}}
-    //-             .col-md-7.dayStats
-    //-               p {{day.distance | number:0}} km
-    //-               p {{day.elevationGain | number:0}} m
+          #spinner(ng-hide="loaded")
+          div(ng-show="loaded")
+            p.mainStat Total distance (km)
+            p.mainStatValue {{totalDistance | inKm}}
+            div.progress
+              div.progress-bar.progress-bar-danger(role="progressbar",aria-valuenow="{{currentDistance *100 / totalDistance}}",aria-valuemin="0",aria-valuemax="100",style="width: {{currentDistance *100 / totalDistance}}%")
+              span.sr-only 80% Complete
+            p.normalStat Completed distance (km)
+            p.normalStatValue(ng-hide="currentDistance") starting soon
+            p.normalStatValue(ng-show="currentDistance") {{currentDistance | inKm}}
+            p.normalStat(ng-show="dayService.avgPerDay") Average distance/day (km)
+            p.normalStatValue(ng-show="dayService.avgPerDay") {{dayService.avgPerDay | inKm}}
+            p.normalStat Remaining distance (km)
+            p.normalStatValue {{totalDistance - currentDistance | inKm}}
+            p.normalStat Estimated days left
+            p.normalStatValue {{dayService.estimatedDays.length}}
+    

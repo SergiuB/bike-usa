@@ -27,14 +27,25 @@
   z-index: 100;
 }
 
+#spinner {
+  display: table;
+  margin: 0 auto;
+  top: 310px;
+  position: relative;
+}
+
 #map {
   width: 100%;
-  height: 80%;
+  height: 100%;
   margin-bottom: 20px;
 }
 
 .elevationChart {
-  height: 20%;
+  height: 150px;
+  width: 50%;
+  position: absolute;
+  bottom: 90px;
+  right: 25%;
 }
 
 #adminMap {
@@ -42,8 +53,6 @@
   margin-top: 20px;
   margin-bottom: 20px;
 }
-
-
 
 .pathSelector{
   margin: 10px;
@@ -132,7 +141,7 @@
 .mainStat {
   color: #0e83cd;
   font-size: 36px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .normalStat {
@@ -151,13 +160,14 @@
 }
 
 .carouselContainer {
-  padding-top: 10px;
+  position: absolute;
+  width: 98%;
+  bottom: 25px;
 }
 
 
 .dayTile {
   height: 60px;
-  border: 1px solid #2d3038;
   padding: 2px;
   transition: all 0.1s;
   -webkit-transition: all 0.1s; /* Safari */
@@ -167,10 +177,29 @@
   padding: 0px;
 }
 
+.dayTileSelected {
+  padding: 0px;
+}
+
+.dayTileCurrent {
+  padding: 0px;
+  border: 3px solid #f19f0f;
+}
+
+.dayTileEstimated {
+  font-style:italic;
+  opacity: 0.8;
+}
+
+.dayTileEstimated:hover{
+  opacity: 1;
+}
+
 
 .dayTile p {
   text-transform:uppercase;
   font-family: 'Pathway Gothic One', sans-serif;
+  cursor: pointer; cursor: hand; 
 }
 
 .dayTile .date {
@@ -205,6 +234,10 @@
 
 .dayTileInner:hover {
   background: #2790B0;
+}
+
+.dayTileSelected .dayTileInner {
+  background: #0e83cd;
 }
 
 .dayStats {

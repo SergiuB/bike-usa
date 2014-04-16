@@ -1,10 +1,5 @@
 'use strict';
 
-/* Services */
-
-// Demonstrate how to register services
-// In this case it is a simple value service.
-
 angular.module('myApp.services').service('estimationService', function($q, $rootScope) {
 
   function newton(a, b, d, f, h) {
@@ -42,14 +37,13 @@ angular.module('myApp.services').service('estimationService', function($q, $root
     return t;
   };
 
-  var endOfDayPoints = [];
   this.computeDayEstimation = function(points) {
     var timeThisDay = 0,
       MAX_TIME_PER_DAY = 7 * 60, //min
       POWER = 120, //W
       lastPoint,
-      curPoint;
-    endOfDayPoints = [];
+      curPoint,
+      endOfDayPoints = [];
     for (var i = 0; i < points.length; i++) {
       curPoint = points[i];
       if (!curPoint.elevation)
@@ -67,10 +61,6 @@ angular.module('myApp.services').service('estimationService', function($q, $root
       }
       lastPoint = curPoint;
     }
-    return endOfDayPoints;
-  };
-
-  this.getEndOfDayPoints = function() {
     return endOfDayPoints;
   };
 });

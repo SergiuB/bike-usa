@@ -1,16 +1,44 @@
 'use strict';
 
-myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'NewPathModel', 'adminOptionsService', 'currentStatus',
-  function($scope, $http, $rootScope, estimationService, NewPathModel, adminOptionsService, currentStatus) {
+myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationService', 'NewPathModel', 'adminOptionsService', 'currentStatus', 'gpsReadingStore', 'dayService',
+  function($scope, $http, $rootScope, estimationService, NewPathModel, adminOptionsService, currentStatus, gpsReadingStore, dayService) {
+    var startSpinner = function() {
+      var opts = {
+        lines: 13, // The number of lines to draw
+        length: 20, // The length of each line
+        width: 10, // The line thickness
+        radius: 30, // The radius of the inner circle
+        corners: 1, // Corner roundness (0..1)
+        rotate: 0, // The rotation offset
+        direction: 1, // 1: clockwise, -1: counterclockwise
+        color: '#fff', // #rgb or #rrggbb or array of colors
+        speed: 1, // Rounds per second
+        trail: 60, // Afterglow percentage
+        shadow: false, // Whether to render a shadow
+        hwaccel: false, // Whether to use hardware acceleration
+        className: 'spinner', // The CSS class to assign to the spinner
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        top: 'auto', // Top position relative to parent in px
+        left: 'auto' // Left position relative to parent in px
+      };
+      var target = document.getElementById('spinner');
+      var spinner = new Spinner(opts).spin(target);
+    };
+
+    $rootScope.loaded = false;
+    startSpinner();
+
+    $rootScope.dayService = dayService;
+
+
     adminOptionsService.load().then(function(options) {
       NewPathModel.load(options.activePathId).then(function(path) {
         $rootScope.currentPath = path;
         updateCurrentPoint();
         path.loadPoints().then(function() {
           updateCurrentPoint();
-          var dayEstimation = estimationService.computeDayEstimation(path.points);
-          $rootScope.$emit('estimationsComputed', dayEstimation);
-          $rootScope.daysLeft = dayEstimation.length;
+          $rootScope.dayService.computeDays();
+          $rootScope.loaded = true;
         });
         $scope.totalDistance = path.getTotalDistance();
       });
@@ -19,9 +47,15 @@ myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationServic
     currentStatus.startPolling(function(lastGpsReading, error) {
       if (lastGpsReading) {
         $rootScope.lastGpsReading = lastGpsReading;
+        $rootScope.gpsReadingStore.addReading(lastGpsReading);
       }
       $rootScope.lastGpsReadingError = error;
       updateCurrentPoint();
+    });
+
+    $rootScope.gpsReadingStore = gpsReadingStore;
+    $rootScope.gpsReadingStore.load().then(function() {
+      $rootScope.dayService.computeDays();
     });
 
     var updateCurrentPoint = function() {
@@ -34,5 +68,7 @@ myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationServic
         }
       }
     };
+
+    
   }
 ]);

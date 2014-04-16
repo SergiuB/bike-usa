@@ -152,15 +152,24 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
       if (points && points.length)
         return Math.ceil(points[points.length - 1].distStart);
     };
-    NewPathModel.prototype.getPointForDistance = function(distance) {
+    NewPathModel.prototype.getClosestPointForDistance = function(distance) {
       var me = this,
         distanceStr = (typeof distance === 'number') ? round2Decimals(distance).toString() : distance,
         distanceNum = (typeof distance === 'string') ? round2Decimals(parseFloat(distance)) : distance;
 
-      for (var i = me.points.length - 1; i >= 0; i--) {
-        if (me.points[i].distStart === distanceNum)
-          return me.points[i]
-      };
+      var minDif = 10000000, dif, point, notFirst;
+      for (var i = 0; i < me.points.length; i++) {
+        dif = Math.abs(me.points[i].distStart - distanceNum);
+        if (dif <= minDif) {
+          minDif = dif;
+          point = me.points[i];
+        }
+        else if (notFirst) {
+          break;
+        }
+        notFirst = true;
+      }
+      return point;
     };
     NewPathModel.prototype.getElevationGainBetweenPoints = function(targetPoints) {
       var points = this.points;
@@ -185,6 +194,22 @@ angular.module('myApp.services').factory('NewPathModel', ['$resource', 'SegmentM
       }
       return elevationGain;
     };
+
+    NewPathModel.prototype.getElevationGain = function(pointAIdx, pointBIdx) {
+      var points = this.points;
+      var elevationGain = 0,
+        currentPoint,
+        prevPoint;
+      for (var i = pointAIdx; i <= pointBIdx; i++) {
+        currentPoint = points[i];
+        elevationGain += (prevPoint && currentPoint.elevation) ? Math.max(currentPoint.elevation - prevPoint.elevation, 0) : 0;
+        if (currentPoint.elevation) {
+          prevPoint = currentPoint;
+        }
+      }
+      return elevationGain;
+    };
+
     NewPathModel.prototype.getAllPointsBetween = function(pointA, pointB, predicateFn) {
       function isBetweenPoints(pointA, pointB, target) {
         var isBetween = (((target.distStart > pointA.distStart) && (target.distStart < pointB.distStart)) ||

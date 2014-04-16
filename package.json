@@ -23,7 +23,8 @@
 		"console-stamp": "latest",
 	    "passport": "*",
 	    "passport-local": "*",
-	    "memory-cache": "latest"
+	    "memory-cache": "latest",
+	    "time": "latest"
 	},
 	"devDependencies": {
 		"grunt-contrib-uglify": "~0.3.2",

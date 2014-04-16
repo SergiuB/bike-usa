@@ -7,7 +7,8 @@ var GpsReadingSchema = new Schema({
 	longitude: { type: Number, min: -180, max: 180 },
 	elevation: Number,
 	speed: Number,
-	bearing: Number
+	bearing: Number,
+	timestamp: Date
 });
 
 db.connection.model('GpsReading', GpsReadingSchema);

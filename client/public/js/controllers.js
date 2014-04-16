@@ -1,8 +1,5 @@
 'use strict';
 
-
-
-
 myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
   function($scope, $rootScope, estimationService) {
 
@@ -14,9 +11,8 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
         max = e.max;
       }
 
-      var pointA = $rootScope.currentPath.getPointForDistance(min);
-      var pointB = $rootScope.currentPath.getPointForDistance(max);
-
+      var pointA = $rootScope.currentPath.getClosestPointForDistance(min);
+      var pointB = $rootScope.currentPath.getClosestPointForDistance(max);
 
       var newData = $rootScope.currentPath.getSamplePoints(pointA, pointB, 500).map(function(point) {
         return [point.distStart, point.elevation];
@@ -28,7 +24,9 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
     var isReset = false;
 
     var firstPoint, lastPoint;
-    $rootScope.$on('estimationsComputed', function(ev, endOfDayPoints) {
+    $rootScope.$watch('loaded', function(loaded) {
+      if (!loaded)
+        return;
       var path = $rootScope.currentPath;
       firstPoint = path.points[0];
       lastPoint = path.points[path.points.length - 1];
@@ -36,7 +34,7 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
       var options = {
         chart: {
           type: 'area',
-          backgroundColor: 'rgba(61,64,72,1)',
+          backgroundColor: 'rgba(61,64,72,0.7)',
           zoomType: 'x'
         },
 
@@ -83,25 +81,50 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
               }
             }
           },
-          title: {
-            text: 'Distance (KM)',
+          labels: {
+            formatter: function() {
+              return (parseFloat(this.value) / 1000) + 'km';
+            },
             style: {
-              fontFamily: '"Carrois Gothic SC", sans-serif',
-              textTransform: 'uppercase',
-              color: 'white',
-              fontSize: '12px'
+              color: '#FFFFFF'
+            }
+          },
+          reversed: true
+          // title: {
+          //   text: 'Distance (KM)',
+          //   style: {
+          //     fontFamily: '"Carrois Gothic SC", sans-serif',
+          //     textTransform: 'uppercase',
+          //     color: 'white',
+          //     fontSize: '12px'
+          //   }
+          // }
+        },
+        yAxis: {
+          title: false,
+          // title: {
+          //   text: 'Elevation (m)',
+          //   style: {
+          //     fontFamily: '"Carrois Gothic SC", sans-serif',
+          //     textTransform: 'uppercase',
+          //     color: 'white',
+          //     fontSize: '12px'
+          //   }
+          // },
+          min: 0,
+          labels: {
+            formatter: function() {
+              return parseFloat(this.value) + 'm';
+            },
+            style: {
+              color: '#FFFFFF'
             }
           }
         },
-        yAxis: {
-          title: {
-            text: 'Elevation (m)',
-            style: {
-              fontFamily: '"Carrois Gothic SC", sans-serif',
-              textTransform: 'uppercase',
-              color: 'white',
-              fontSize: '12px'
-            }
+
+        tooltip: {
+          formatter: function() {
+            return 'Distance: <b>' + Math.floor(this.x / 1000) + 'km</b><br>Elevation: <b>' + Math.floor(this.y) + 'm</b>';
           }
         },
 
@@ -176,29 +199,21 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
 
 myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
   function($scope, $rootScope) {
-    $rootScope.$on('estimationsComputed', function(ev, dayEstimation) {
+    $rootScope.$watch('dayService.days', function(days) {
+      if (!days)
+        return;
       var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-      var elevationGains = $rootScope.currentPath.getElevationGainBetweenPoints(dayEstimation);
-      var startDate = new Date();
-      startDate.setFullYear(2014, 3, 22);
-      $scope.daysLeft = dayEstimation.length;
       var slides = $scope.slides = [];
-      for (var i = 0; i < dayEstimation.length; i++) {
+      for (var i = 0; i < days.length; i++) {
         if (i % 7 === 0) {
           slides.push({
-
-            days: []
+            days: [],
+            index: Math.floor(i / 7)
           });
         }
-        slides[Math.floor(i / 7)].days.push({
-          index: i,
-          distance: i ? dayEstimation[i].distStart - dayEstimation[i - 1].distStart : dayEstimation[i].distStart,
-          elevationGain: elevationGains[i],
-          dayEstimation: dayEstimation[i],
-          prevDayEstimation: dayEstimation[i - 1],
-          date: '' + months[startDate.getMonth()] + ' ' + startDate.getDate()
-        });
-        startDate.setDate(startDate.getDate() + 1);
+        slides[Math.floor(i / 7)].days.push(days[i]);
+        if (days[i].isCurrentDay)
+          slides[Math.floor(i / 7)].active = true;
       }
 
       $scope.mouseOverDay = function(day) {
@@ -228,16 +243,18 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
             return slide.active;
           })[0].days);
       }, true);
+
+      $scope.getMonthStr = function(month) {
+        return months[month];
+      };
     });
 
   }
 ]);
 
-myApp.controller('LoginCtrl', 
-  function() {
-  }
+myApp.controller('LoginCtrl',
+  function() {}
 );
-myApp.controller('SignupCtrl', 
-  function() {
-  }
+myApp.controller('SignupCtrl',
+  function() {}
 );

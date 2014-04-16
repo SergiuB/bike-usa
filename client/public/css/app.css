@@ -118,6 +118,10 @@
   text-shadow: 2px 2px 2px black;
 }
 
+.projectTitle:hover {
+  color: white;
+}
+
 .projectTitleSmall {
   color: #2790B0;
   font-family: 'Chivo';

@@ -26,6 +26,7 @@ exports.create = function(req, res) {
 	gpsReading.speed = coordinate.speed;
 	gpsReading.bearing = coordinate.bearing;
 	gpsReading.elevation = coordinate.elevation;
+	gpsReading.timestamp = new Date();
 
 	console.log('Received GPS reading: ' + JSON.stringify(coordinate));
 	gpsReading.save(function(err, res) {

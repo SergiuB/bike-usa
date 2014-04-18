@@ -5,20 +5,24 @@
 // Demonstrate how to register services
 // In this case it is a simple value service.
 
-angular.module('myApp.services').service('dayService', ['estimationService', 'gpsReadingStore', '$rootScope',
-  function(estimationService, gpsReadingStore, $rootScope) {
+angular.module('myApp.services').service('dayService', ['estimationService', 'gpsReadingStore', '$rootScope', 'adminOptionsService',
+  function(estimationService, gpsReadingStore, $rootScope, adminOptionsService) {
     var me = this;
-    var START_DATE = new Date(2014, 3, 23);
+    var START_DATE;
 
-    function timezoneNY(dateString) {
+    var getCyclistDate = function(dateString) {
+      var hoursRelativeToGMT = adminOptionsService.options.hoursRelativeToGMT || 0;
+      return new Date(new Date(dateString).getTime() + hoursRelativeToGMT * 3600 * 1000);
+    };
 
-      return new Date(new Date(dateString).getTime() - 4 * 3600 * 1000);
-    }
+    me.getCyclistDate = getCyclistDate;
 
     me.computeDays = function() {
       var i, points, path, days, estimatedDays;
       if (!$rootScope.currentPath || !$rootScope.currentPath.points)
         return;
+
+      START_DATE = new Date(2014, adminOptionsService.options.startMonth, adminOptionsService.options.startDate);
 
       points = $rootScope.currentPath.points;
       path = $rootScope.currentPath;
@@ -84,7 +88,7 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
         return;
 
       gpsReading = gpsReadings[0];
-      nyTimestamp = timezoneNY(gpsReading.timestamp);
+      nyTimestamp = getCyclistDate(gpsReading.timestamp);
       days[0] = {
         date: nyTimestamp.getDate(),
         month: nyTimestamp.getMonth(),
@@ -94,7 +98,7 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
 
       for (i = 1; i < gpsReadings.length; i++) {
         gpsReading = gpsReadings[i];
-        nyTimestamp = timezoneNY(gpsReading.timestamp);
+        nyTimestamp = getCyclistDate(gpsReading.timestamp);
         if (days[curIndex].date !== nyTimestamp.getDate()) {
           days[curIndex].lastGpsReading = gpsReadings[i - 1];
           days[curIndex].endPoint = path.getClosestPointToLocation(days[curIndex].lastGpsReading);

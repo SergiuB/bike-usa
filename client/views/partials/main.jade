@@ -10,6 +10,8 @@
             p.projectTitleSmall As I cross the USA from east to west on my bike
         .wrapper.mapAndChart
           #map(ng-controller='MapCtrl')
+            script(type="text/ng-template", id="twitterLargeImage.html")
+              img(src="{{url}}")
           .elevationChart(id="elevationChart", ng-controller='ChartCtrl')
           .carouselContainer(ng-controller='DayCarouselCtrl')
             div(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
@@ -25,7 +27,7 @@
                         p {{day.elevationGain | number:0}} m
       #sidebar.col-sm-2.sidebar-offcanvas.text-center
         nav#cl-effect-14.cl-effect-14
-          a(href="http://soroptimist.galantom.ro/sergiubuciuc1", target="_blank") 
+          a.donateLink(href="http://soroptimist.galantom.ro/sergiubuciuc1", target="_blank") 
             span(data-hover="Help support a child's education") Help support a child's education
         .stats
           #spinner(ng-hide="loaded")
@@ -44,4 +46,6 @@
             p.normalStatValue {{totalDistance - currentDistance | inKm}}
             p.normalStat Estimated days left
             p.normalStatValue {{dayService.estimatedDays.length}}
-    
+        .tweets
+          a(class="twitter-timeline", height="300", data-dnt="true", href="https://twitter.com/bikeacrossusa", data-widget-id="456736800258535425") Tweets by @bikeacrossusa
+          script !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");

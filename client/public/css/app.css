@@ -30,7 +30,7 @@
 #spinner {
   display: table;
   margin: 0 auto;
-  top: 310px;
+  top: 70px;
   position: relative;
 }
 
@@ -46,6 +46,14 @@
   position: absolute;
   bottom: 90px;
   right: 25%;
+}
+
+.tweets {
+  margin-top: 15px;
+  height: 300px;
+  width: 100%;
+  position: relative;
+  bottom: 0px;
 }
 
 #adminMap {
@@ -94,6 +102,7 @@
 
 #sidebar {
  padding: 0;
+ height: 100%;
 }
 
 .stats {
@@ -107,6 +116,9 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d4048', endColorstr='#2e3139', GradientType=0 );
   text-transform:uppercase;
   font-family: 'Pathway Gothic One', sans-serif;
+  overflow: auto;
+  margin-top: 15px;
+  height: 550px;
 }
 
 .projectTitle {
@@ -155,12 +167,12 @@
 
 .mainStatValue {
   color: #FFFFFF;
-  font-size: 64px;
+  font-size: 48px;
 }
 
 .normalStatValue {
   color: #FFFFFF;
-  font-size: 48px;
+  font-size: 36px;
 }
 
 .carouselContainer {
@@ -314,6 +326,13 @@
 }
 
 /* Donate button */
+
+.donateLink {
+  font-size: 24px;
+  text-transform:uppercase;
+  font-family: 'Pathway Gothic One', sans-serif;
+}
+
 nav {
   background-color: #f19f0f;
 }
@@ -326,9 +345,6 @@ nav a {
   text-decoration: none;
   text-shadow: 0 0 1px rgba(255,255,255,0.3);
   margin: 10px 0px 10px 0px;
-  font-size: 24px;
-  text-transform:uppercase;
-  font-family: 'Pathway Gothic One', sans-serif;
 }
 
 nav a:hover,
@@ -340,7 +356,7 @@ nav a:focus {
 
 /* Effect 14: border switch */
 .cl-effect-14 a {
-  padding: 0 20px;
+  padding: 0 1px;
   height: 45px;
   line-height: 45px;
 }
@@ -402,4 +418,62 @@ nav a:focus {
   -webkit-transform: rotate(0deg) translateX(50%);
   -moz-transform: rotate(0deg) translateX(50%);
   transform: rotate(0deg) translateX(50%);
+}
+
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+ 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow:none;
+    border-radius: 0px;
+    background-color:#aaa;
+}
+ 
+::-webkit-scrollbar-thumb {
+    border-radius: 0px;
+    -webkit-box-shadow: inset 1px 1px 6px #333; 
+    background-color:#666;
+}
+
+
+
+@media (max-height: 1023px){
+  .stats {
+    height: 550px;
+  }
+}
+
+@media (max-height: 799px){
+  .stats {
+    height: 300px;
+  }
+
+  .donateLink {
+    font-size: 14px;
+  }
+
+  .mainStat {
+    font-size: 18px;
+  }
+
+  .normalStat {
+    font-size: 14px;
+  }
+
+  .mainStatValue {
+    font-size: 24px;
+  }
+
+  .normalStatValue {
+    font-size: 18px;
+  }
+
+  .dayTile .day {
+    color: rgb(179, 172, 153);
+    font-size: 18px;
+    margin-left: 5px;
+    padding-top: 5px;
+  }
 }

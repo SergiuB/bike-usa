@@ -4,6 +4,7 @@ var adminOptions = require('./api/AdminOptions');
 var paths = require('./api/Paths');
 var segments = require('./api/Segments');
 var coordinates = require('./api/Coordinates');
+var twitterService = require('./api/TwitterService');
 var db = require('./db/db'),
     User = db.connection.model('User');
 
@@ -44,6 +45,10 @@ module.exports = function(app, passport) {
 	app.post('/api/coordinates', coordinates.create);
 	app.get('/api/coordinates/last', coordinates.getLast);
 	app.get('/api/coordinates/generateSample', coordinates.generateSample);
+
+
+	app.get('/api/tweets', twitterService.getTweets);
+	app.get('/api/tweets/widget', twitterService.getTweetWidget);
 
 	// app.post("/signup", Auth.userExist, function (req, res, next) {
 	// 	User.signup(req.body.email, req.body.password, function(err, user){

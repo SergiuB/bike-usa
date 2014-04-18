@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig',
-  function($scope, $rootScope, mapService, mapFeatureConfig) {
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', '$http', '$modal', 'adminOptionsService',
+  function($scope, $rootScope, mapService, mapFeatureConfig, $http, $modal, adminOptionsService) {
     var me = this;
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
@@ -65,7 +65,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     // });
 
     mapService.setCustomMapType(map, ABSTRACTMAP, mapFeatureConfig, {
-      name: 'Abstract'
+      name: 'Dark Theme'
     });
 
     // Limit the zoom level
@@ -87,7 +87,8 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
 
     var dayRoute, dayStartMarker, dayEndMarker;
     $rootScope.$on('mouseOverDay', function(ev, day) {
-      var dayPoints = $rootScope.currentPath.getAllPointsBetween(day.dayEstimation, (day.prevDayEstimation) ? day.prevDayEstimation : $rootScope.currentPath.points[0]);
+      var points = $rootScope.currentPath.points;
+      var dayPoints = $rootScope.currentPath.getAllPointsBetween(points[day.startPoint], points[day.endPoint]);
       if (!dayRoute) {
         dayRoute = mapService.createPolyline({
           geodesic: true,
@@ -230,13 +231,13 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     //   showRouteSoFar(latLongCoordinates.slice(0, $rootScope.currentPointIndex + 1));
     // });
 
-    $rootScope.$watch('lastGpsReading', function(lastGpsReading) {
+    $rootScope.$watch('currentStatus.lastGpsReading', function(lastGpsReading) {
       if (!lastGpsReading)
         return;
       var curentPoint = mapService.createLatLng(lastGpsReading);
 
       if (!currentMarker) {
-        currentMarker = mapService.createTargetMarker({
+        currentMarker = mapService.createBikeMarker({
           animation: google.maps.Animation.DROP,
           position: curentPoint,
           map: map
@@ -244,6 +245,117 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       } else {
         currentMarker.setPosition(curentPoint);
       }
+    });
+
+
+    // Tweet markers
+    var ModalInstanceCtrl = function($scope, $modalInstance, url) {
+        $scope.url = url;
+      };
+
+      window.showTweetImage = function(url) {
+        var modalInstance = $modal.open({
+          templateUrl: 'twitterLargeImage.html',
+          controller: ModalInstanceCtrl,
+          resolve: {
+            url: function() {
+              return url;
+            }
+          }
+        });
+        console.log(url);
+      };
+
+    var createTweetMarker = function(tweet) {
+      var tweetPoint, coord;
+      if (tweet.coordinates && tweet.coordinates.coordinates) {
+        coord = tweet.coordinates.coordinates;
+        tweetPoint = mapService.createLatLng({
+          latitude: coord[1],
+          longitude: coord[0]
+        });
+      } else if (tweet.geo && tweet.geo.coordinates) {
+        coord = tweet.geo.coordinates;
+        tweetPoint = mapService.createLatLng({
+          latitude: coord[0],
+          longitude: coord[1]
+        });
+      }
+      var marker = mapService.createMarker({
+        position: tweetPoint,
+        //map: map
+      });
+
+      google.maps.event.addListener(marker, 'click', function() {
+        var tweetDate = new Date(tweet.created_at);
+        var content = "";
+        content += "<p>" + tweetDate.toString() + "</p>";
+        content += "<p>Bike local time: " + tweetDate.toLocaleTimeString("en-US", {timeZone: adminOptionsService.options.timezone || 'America/New_York'}) + "</p><br>";
+        content += "<p>" + tweet.text + "</p><br>";
+        if (tweet.entities && tweet.entities.media && tweet.entities.media.length) {
+          tweet.entities.media.forEach(function(photo) {
+            if (photo.type === 'photo') {
+              content += "<img class=\"thumbnail pull-left\" height=\"150\" src=\"" + photo.media_url + ":thumb\" width=\"150\" onclick=\"showTweetImage(\'" + photo.media_url + "\')\">";
+            }
+          });
+        }
+        tweetWindow.setContent(content);
+        tweetWindow.open(map, marker);
+      });
+
+      return marker;
+    };
+
+    var addTweetMarker = function(tweet) {
+      twitterMarkers.push(createTweetMarker(tweet));
+    };
+
+    var deleteMarker = function(marker) {
+      marker.setMap(null);
+      google.maps.event.clearInstanceListeners(marker);
+    };
+
+    var tweetWindow = new google.maps.InfoWindow();
+    var twitterMarkers = [];
+    var mc;
+    // $rootScope.$watch('currentPath.points', function(points) {
+    //   if (!points || !points.length)
+    //     return;
+
+    //   var tweets = [];
+    //   for (var i = 0; i < points.length; i+=100) {
+    //     tweets.push({
+    //     coordinates: {
+    //       coordinates: [points[i].longitude, points[i].latitude]
+    //     },
+    //     text: 'bogus tweet'
+    //     });
+    //   }
+
+    //   twitterMarkers.forEach(deleteMarker);
+    //   twitterMarkers.length = 0;
+    //   tweets.forEach(addTweetMarker);
+    //   var mcOptions = {
+    //     gridSize: 50,
+    //     maxZoom: 15
+    //   };
+    //   mc = new MarkerClusterer(map, twitterMarkers, mcOptions);
+    //   console.log(tweets);
+    // });
+
+     $rootScope.$watch('currentStatus.tweets', function(tweets) {
+      if (!tweets || !tweets.length)
+        return;
+
+      twitterMarkers.forEach(deleteMarker);
+      twitterMarkers.length = 0;
+      tweets.forEach(addTweetMarker);
+      var mcOptions = {
+        gridSize: 50,
+        maxZoom: 15
+      };
+      mc = new MarkerClusterer(map, twitterMarkers, mcOptions);
+      console.log(tweets);
     });
   }
 ]);

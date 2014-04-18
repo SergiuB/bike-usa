@@ -24,7 +24,8 @@
 	    "passport": "*",
 	    "passport-local": "*",
 	    "memory-cache": "latest",
-	    "time": "latest"
+	    "time": "latest",
+	    "twitter": "0.2.9"
 	},
 	"devDependencies": {
 		"grunt-contrib-uglify": "~0.3.2",

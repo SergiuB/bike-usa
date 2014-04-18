@@ -226,15 +226,15 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
 
       var mouseIsOverWeek = false;
       $scope.mouseOverWeek = function(day) {
-        $rootScope.$emit('mouseOverWeek', $scope.slides.filter(function(slide) {
-          return slide.active;
-        })[0].days);
-        mouseIsOverWeek = true;
+        // $rootScope.$emit('mouseOverWeek', $scope.slides.filter(function(slide) {
+        //   return slide.active;
+        // })[0].days);
+        // mouseIsOverWeek = true;
       };
 
       $scope.mouseOutWeek = function() {
-        $rootScope.$emit('mouseOutWeek');
-        mouseIsOverWeek = false;
+        // $rootScope.$emit('mouseOutWeek');
+        // mouseIsOverWeek = false;
       };
 
       $scope.$watch('slides', function(slides) {

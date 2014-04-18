@@ -45,7 +45,7 @@ angular.module('myApp.services').service('mapService', [
     me.createBikeMarker = function(options) {
       var theOptions = {
         icon: {
-          url: 'resource/icons/cycling.png'
+          url: 'resource/icons/cycling3.png'
         }
       };
       angular.extend(theOptions, options);

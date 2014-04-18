@@ -29,7 +29,8 @@ myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationServic
     startSpinner();
 
     $rootScope.dayService = dayService;
-
+    $rootScope.currentStatus = currentStatus;
+    $rootScope.gpsReadingStore = gpsReadingStore;
 
     adminOptionsService.load().then(function(options) {
       NewPathModel.load(options.activePathId).then(function(path) {
@@ -42,25 +43,26 @@ myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationServic
         });
         $scope.totalDistance = path.getTotalDistance();
       });
-    });
 
-    currentStatus.startPolling(function(lastGpsReading, error) {
-      if (lastGpsReading) {
-        $rootScope.lastGpsReading = lastGpsReading;
-        $rootScope.gpsReadingStore.addReading(lastGpsReading);
-      }
-      $rootScope.lastGpsReadingError = error;
-      updateCurrentPoint();
-    });
+      $rootScope.currentStatus.startPolling();
+      $rootScope.currentStatus.getTweets();
 
-    $rootScope.gpsReadingStore = gpsReadingStore;
-    $rootScope.gpsReadingStore.load().then(function() {
-      $rootScope.dayService.computeDays();
+      $rootScope.$watch('currentStatus.lastGpsReading', function(lastGpsReading) {
+        if (lastGpsReading) {
+          $rootScope.gpsReadingStore.addReading(lastGpsReading);
+        }
+        updateCurrentPoint();
+      });
+
+      $rootScope.gpsReadingStore.load().then(function() {
+        $rootScope.dayService.computeDays();
+      });
+
     });
 
     var updateCurrentPoint = function() {
       var path = $rootScope.currentPath;
-      var lastGpsReading = $rootScope.lastGpsReading;
+      var lastGpsReading = $rootScope.currentStatus.lastGpsReading;
       if (lastGpsReading) {
         if (path && path.points) {
           $rootScope.currentPointIndex = path.getClosestPointToLocation(lastGpsReading);
@@ -69,6 +71,5 @@ myApp.controller('MainCtrl', ['$scope', '$http', '$rootScope', 'estimationServic
       }
     };
 
-    
   }
 ]);

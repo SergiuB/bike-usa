@@ -5,7 +5,6 @@ angular.module('myApp.services').service('blogService', ['$rootScope', '$http', 
         var me = this;
         $http.get('/api/blogPosts').success(function(data) {
             me.entries = data;
-            console.log(me.entries);
         });
 
         me.getBlogEntryUrl = function(date, month) {

@@ -1,0 +1,17 @@
+div.lightText
+	p Admin options:
+	p.indented Start day and month: {{adminOptions.startMonth}}/{{adminOptions.startDate}}
+	p.indented Hours relative to GMT: {{adminOptions.hoursRelativeToGMT}}
+	p.indented Timezone: {{adminOptions.timezone}}
+	p Total distance: {{totalDistance | inKm}}
+	p Completed distance: {{currentDistance | inKm}}
+	p Estimated days left: {{dayService.estimatedDays.length}}
+	p Current biker local time: {{bikerLocalTime}}
+	p Last GPS reading at {{currentStatus.lastGpsReading.timestamp}} (biker local time: {{lastLocBikerTime}})
+	p.indented Coordinates: {{currentStatus.lastGpsReading.latitude}}, {{currentStatus.lastGpsReading.longitude}}
+	p.indented Speed: {{currentStatus.lastGpsReading.speed | inKph}}
+	p Current day stats
+	p.indented Distance so far today: {{currentDay.currentDistance | inKm}}
+	p.indented Elevation gain so far today: {{currentDay.currentElevationGain}}
+	p.indented Total distance today: {{currentDay.distance | inKm}}
+	p.indented Total elevation gain today: {{currentDay.elevationGain}}

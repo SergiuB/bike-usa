@@ -73,6 +73,27 @@ exports.uploadKml = function(req, res) {
 	});
 };
 
+exports.exportGpx = function(req, res) {
+	Path.findById(req.param('pathId'), function(err, targetPath) {
+		if (!err) {
+			var gpxXml = "<?xml version=\"1.0\"?><gpx><trk><name>" + targetPath.name + "</name>";
+			targetPath.segments.forEach(function(segment) {
+				gpxXml += "<trkseg>";
+				segment.locations.forEach(function(location) {
+					gpxXml += "<trkpt lat=\"" + location.latitude + "\" lon=\"" + location.longitude + "\"></trkpt>";
+				});
+				gpxXml += "</trkseg>";
+			});
+			gpxXml += "</trk></gpx>";
+			res.set('Content-Disposition', 'attachment; filename="' + targetPath.name + '.gpx"');
+			res.set('Content-Type', 'application/xml');
+			res.send(gpxXml);
+		} else {
+			res.send(500, err);
+		}
+	});
+};
+
 var getCompactSegment = function(segment, segmentUrl) {
 	return {
 		_id: segment._id,

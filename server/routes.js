@@ -33,6 +33,7 @@ module.exports = function(app, passport) {
 	app.get('/api/pathsNew/:pathId', pathsNew.show);
 	app.get('/api/pathsNew/:pathId/point', pathsNew.getPoints);
 	app.get('/api/pathsNew/:pathId/edit', Auth.isAuthenticated, pathsNew.edit);
+	app.get('/api/pathsNew/:pathId/gpx', pathsNew.exportGpx);
 	app.post('/api/pathsNew', Auth.isAuthenticated, pathsNew.create);
 	app.delete('/api/pathsNew/:pathId', Auth.isAuthenticated, pathsNew.destroy);
 

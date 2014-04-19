@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', '$http', '$modal', 'adminOptionsService',
-  function($scope, $rootScope, mapService, mapFeatureConfig, $http, $modal, adminOptionsService) {
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', '$http', '$modal', 'adminOptionsService', 'currentStatus',
+  function($scope, $rootScope, mapService, mapFeatureConfig, $http, $modal, adminOptionsService, currentStatus) {
     var me = this;
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
@@ -13,7 +13,11 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
         long: -90.50
       }),
       panControl: false,
-      zoomControl: false,
+      zoomControl: true,
+      zoomControlOptions: {
+        style: google.maps.ZoomControlStyle.LARGE,
+        position: google.maps.ControlPosition.RIGHT_CENTER
+      },
       //mapTypeControl: false,
       scaleControl: false,
       streetViewControl: true,
@@ -94,7 +98,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
           geodesic: true,
           strokeColor: '2B4E72',
           strokeWeight: 5,
-          zIndex: 3
+          zIndex: 5
         });
         dayStartMarker = mapService.createMarker();
         dayEndMarker = mapService.createMarker();
@@ -106,6 +110,89 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       dayRoute.setMap(map);
       dayStartMarker.setMap(map);
       dayEndMarker.setMap(map);
+    });
+
+    var getMonthStr = function(month) {
+      var months = ['jan', 'feb', 'mar', 'Apr', 'May', 'Jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+      return months[month];
+    };
+
+    var selDayRoute, selDayStartMarker, selDayEndMarker;
+    var dayInfoWindow;
+    $rootScope.$on('mouseClickDay', function(ev, selectedDay) {
+      var chart = $('#elevationChart').highcharts();
+      // if (selDayRoute) {
+      //   selDayRoute.setMap(null);
+      //   selDayStartMarker.setMap(null);
+      //   selDayEndMarker.setMap(null);
+      // }
+      if (selectedDay) {
+        var points = $rootScope.currentPath.points;
+        var dayPoints = $rootScope.currentPath.getAllPointsBetween(points[selectedDay.startPoint], points[selectedDay.endPoint]);
+        // if (!selDayRoute) {
+        //   selDayRoute = mapService.createPolyline({
+        //     geodesic: true,
+        //     strokeColor: '2B4E72',
+        //     strokeWeight: 5,
+        //     zIndex: 4
+        //   });
+        //   selDayStartMarker = mapService.createMarker();
+        //   selDayEndMarker = mapService.createMarker();
+        // }
+        // var latLngArray = mapService.createLatLngArray(dayPoints);
+        // selDayStartMarker.setPosition(latLngArray[0]);
+        // selDayEndMarker.setPosition(latLngArray[latLngArray.length - 1]);
+        // selDayRoute.setPath(latLngArray);
+        // selDayRoute.setMap(map);
+        // selDayStartMarker.setMap(map);
+        // selDayEndMarker.setMap(map);
+        if (dayPoints.length)
+          mapService.fitBounds(map, mapService.createBounds(dayPoints));
+        else
+          mapService.panTo(map, points[selectedDay.endPoint]);
+
+        // var marker = new google.maps.Marker({
+        //   position: mapService.createLatLng(selectedDay.endPoint),
+        //   map: map
+        // });
+
+        if (dayInfoWindow)
+          dayInfoWindow.close();
+        dayInfoWindow = new google.maps.InfoWindow({
+          position: dayPoints.length ? mapService.createLatLng(dayPoints[Math.floor(dayPoints.length / 2)]) : mapService.createLatLng(points[selectedDay.endPoint])
+        });
+        var content = "<p>" + 'Day ' + (selectedDay.index + 1) + " - " + getMonthStr(selectedDay.month) + " " + selectedDay.date + "</p>";
+        content += "<br>";
+        if (selectedDay.isCurrentDay) {
+          content += "<p>" + "This is the day of my last known location." + "</p>";
+          content += "<p>" + "If this date is not today it means no updates were received from my phone for a while." + "</p>";
+          content += "<br>";
+          content += "<p>" + "Day numbers:" + "</p>";
+          content += "<p class=\"indented\">" + "Distance so far: " + Math.floor(selectedDay.currentDistance / 1000) + " km</p>";
+          content += "<p class=\"indented\">" + "Altitude gain so far: " + Math.floor(selectedDay.currentElevationGain) + " m</p>";
+          content += "<p class=\"indented\">" + "Estimated total distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p class=\"indented\">" + "Estimated total altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+        } else if (selectedDay.isEstimate) {
+          content += "<p>" + "This is just an estimation, don't take it too seriously :)</p>";
+          content += "<br>";
+          content += "<p>" + "Day numbers:" + "</p>";
+          content += "<p class=\"indented\">" + "Estimated total distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p class=\"indented\">" + "Estimated total altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+        } else {
+          //content += "<p>" + "What happened today: </p>";
+          content += "<br>";
+          content += "<p>" + "Day numbers:" + "</p>";
+          content += "<p class=\"indented\">" + "Distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p class=\"indented\">" + "Altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+
+          if (!selectedDay.distance) {
+            content += "<br>";
+            content += "<p>" + "Looks like a day for chillin' or maybe no location updates received." + "</p>";
+          }
+        }
+        dayInfoWindow.setContent(content);
+        dayInfoWindow.open(map);
+      }
     });
 
     $rootScope.$on('mouseOutDay', function(ev, day) {
@@ -223,14 +310,6 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
       }
     });
 
-    // $rootScope.$watch('currentDistance', function(currentDistance) {
-    //   if (!currentDistance)
-    //     return;
-    //   var path = $rootScope.currentPath;
-    //   var latLongCoordinates = mapService.createLatLngArray(path.points);
-    //   showRouteSoFar(latLongCoordinates.slice(0, $rootScope.currentPointIndex + 1));
-    // });
-
     $rootScope.$watch('currentStatus.lastGpsReading', function(lastGpsReading) {
       if (!lastGpsReading)
         return;
@@ -242,29 +321,49 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
           position: curentPoint,
           map: map
         });
+
+        google.maps.event.addListener(currentMarker, 'click', function() {
+          if (dayInfoWindow)
+            dayInfoWindow.close();
+          dayInfoWindow = new google.maps.InfoWindow();
+          
+          var content = "";
+          var date = new Date(lastGpsReading.timestamp);
+          content += "<p>" + "Last location update" + "</p>";
+          content += "<br>";
+          content += "<p>" + date + "</p>";
+          content += "<p>Bike local time: " + date.toLocaleTimeString("en-US", {
+            timeZone: adminOptionsService.options.timezone || 'America/New_York'
+          }) + "</p><br>";
+          content += "<p>" + "Latitude: " + lastGpsReading.latitude.toFixed(3)  + "</p>";
+          content += "<p>" + "Longitude: " + lastGpsReading.longitude.toFixed(3)  + "</p>";
+          content += "<p>" + "Speed: " + ((lastGpsReading.speed / 1000) * 3600).toFixed(1) + " km/h</p>";
+
+          dayInfoWindow.setContent(content);
+          dayInfoWindow.open(map, currentMarker);
+        });
       } else {
         currentMarker.setPosition(curentPoint);
       }
-    });
 
+    });
 
     // Tweet markers
     var ModalInstanceCtrl = function($scope, $modalInstance, url) {
-        $scope.url = url;
-      };
+      $scope.url = url;
+    };
 
-      window.showTweetImage = function(url) {
-        var modalInstance = $modal.open({
-          templateUrl: 'twitterLargeImage.html',
-          controller: ModalInstanceCtrl,
-          resolve: {
-            url: function() {
-              return url;
-            }
+    window.showTweetImage = function(url) {
+      var modalInstance = $modal.open({
+        templateUrl: 'twitterLargeImage.html',
+        controller: ModalInstanceCtrl,
+        resolve: {
+          url: function() {
+            return url;
           }
-        });
-        console.log(url);
-      };
+        }
+      });
+    };
 
     var createTweetMarker = function(tweet) {
       var tweetPoint, coord;
@@ -290,7 +389,9 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
         var tweetDate = new Date(tweet.created_at);
         var content = "";
         content += "<p>" + tweetDate.toString() + "</p>";
-        content += "<p>Bike local time: " + tweetDate.toLocaleTimeString("en-US", {timeZone: adminOptionsService.options.timezone || 'America/New_York'}) + "</p><br>";
+        content += "<p>Bike local time: " + tweetDate.toLocaleTimeString("en-US", {
+          timeZone: adminOptionsService.options.timezone || 'America/New_York'
+        }) + "</p><br>";
         content += "<p>" + tweet.text + "</p><br>";
         if (tweet.entities && tweet.entities.media && tweet.entities.media.length) {
           tweet.entities.media.forEach(function(photo) {
@@ -343,7 +444,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
     //   console.log(tweets);
     // });
 
-     $rootScope.$watch('currentStatus.tweets', function(tweets) {
+    $rootScope.$watch('currentStatus.tweets', function(tweets) {
       if (!tweets || !tweets.length)
         return;
 
@@ -355,7 +456,6 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
         maxZoom: 15
       };
       mc = new MarkerClusterer(map, twitterMarkers, mcOptions);
-      console.log(tweets);
     });
   }
 ]);

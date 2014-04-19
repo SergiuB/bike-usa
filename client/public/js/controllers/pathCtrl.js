@@ -73,10 +73,6 @@ myApp.controller('PathCtrl', ['$scope', '$rootScope', '$http', 'NewPathModel', '
 				return [];
 		};
 
-		$scope.copyPathToTargetPath = function() {
-			console.log('yppp');
-		};
-
 
 		var refreshPathSegments = function(pathId) {
 			var path = PathDataStore.getPath(pathId);

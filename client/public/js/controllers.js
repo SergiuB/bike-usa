@@ -4,21 +4,25 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
   function($scope, $rootScope, estimationService) {
 
     function afterSetExtremes(e) {
-      var min = 0;
-      var max = lastPoint.distStart;
-      if (!isReset) {
-        min = e.min;
-        max = e.max;
-      }
+      // var min = 0;
+      // var max = lastPoint.distStart;
+      // if (!isReset) {
+      //   min = e.min;
+      //   max = e.max;
+      // }
 
-      var pointA = $rootScope.currentPath.getClosestPointForDistance(min);
-      var pointB = $rootScope.currentPath.getClosestPointForDistance(max);
+      // var pointA = $rootScope.currentPath.getClosestPointForDistance(min);
+      // var pointB = $rootScope.currentPath.getClosestPointForDistance(max);
 
-      var newData = $rootScope.currentPath.getSamplePoints(pointA, pointB, 500).map(function(point) {
-        return [point.distStart, point.elevation];
-      });
+      // var newData = $rootScope.currentPath.getSamplePoints(pointA, pointB, 500).map(function(point) {
+      //   return [point.distStart, point.elevation];
+      // });
       var chart = $('#elevationChart').highcharts();
-      chart.series[0].setData(newData);
+      // chart.series[0].setData(newData);
+      // 
+      if (!chart.resetZoomButton && !isReset) {
+        chart.showResetZoom();
+      }
     }
 
     var isReset = false;
@@ -63,7 +67,7 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
           }
         },
         series: [{
-          data: path.getSamplePoints(firstPoint, lastPoint, 500).map(function(point) {
+          data: path.getSamplePoints(firstPoint, lastPoint, 1000).map(function(point) {
             return [point.distStart, point.elevation];
           })
         }],
@@ -133,65 +137,87 @@ myApp.controller('ChartCtrl', ['$scope', '$rootScope', 'estimationService',
 
       $('#elevationChart').highcharts(options);
 
-      $rootScope.$on('mouseOverWeek', function(ev, weekDays) {
-        var chart = $('#elevationChart').highcharts();
-        var zoomFrom = weekDays[0].prevDayEstimation ? weekDays[0].prevDayEstimation.distStart : 0;
-        var zoomTo = weekDays[weekDays.length - 1].dayEstimation.distStart;
-        chart.xAxis[0].setExtremes(zoomFrom, zoomTo);
-      });
+      // $rootScope.$on('mouseOverWeek', function(ev, weekDays) {
+      //   var chart = $('#elevationChart').highcharts();
+      //   var zoomFrom = weekDays[0].prevDayEstimation ? weekDays[0].prevDayEstimation.distStart : 0;
+      //   var zoomTo = weekDays[weekDays.length - 1].dayEstimation.distStart;
+      //   chart.xAxis[0].setExtremes(zoomFrom, zoomTo);
+      // });
 
-      $rootScope.$on('mouseOutWeek', function(ev, weekDays) {
-        var chart = $('#elevationChart').highcharts();
-        chart.xAxis[0].setExtremes(firstPoint.distStart, lastPoint.distStart);
-      });
+      // $rootScope.$on('mouseOutWeek', function(ev, weekDays) {
+      //   var chart = $('#elevationChart').highcharts();
+      //   chart.xAxis[0].setExtremes(firstPoint.distStart, lastPoint.distStart);
+      // });
 
       $rootScope.$on('mouseOverDay', function(ev, day) {
-        var chart = $('#elevationChart').highcharts();
+        if (!$rootScope.selectedDay) {
+          var chart = $('#elevationChart').highcharts();
+          var points = $rootScope.currentPath.points;
 
-        var from = (day.prevDayEstimation) ? day.prevDayEstimation.distStart : 0;
-        var to = day.dayEstimation.distStart;
-        chart.xAxis[0].addPlotBand({
-          from: from,
-          to: to,
-          color: '#2790B0',
-          id: 'day-band'
-        });
-        chart.xAxis[0].addPlotLine({
-          value: from,
-          width: 2,
-          color: '#2B4E72',
-          id: 'day-line-start',
-          label: {
-            x: -12,
-            text: 'Km ' + from.toFixed(0),
-            style: {
-              fontFamily: '"Pathway Gothic One", sans-serif',
-              fontSize: '14px',
-              color: 'white'
+          var from = points[day.startPoint].distStart;
+          var to = points[day.endPoint].distStart;
+          chart.xAxis[0].addPlotBand({
+            from: from,
+            to: to,
+            color: '#2790B0',
+            id: 'day-band'
+          });
+          chart.xAxis[0].addPlotLine({
+            value: from,
+            width: 2,
+            color: '#2B4E72',
+            id: 'day-line-start',
+            label: {
+              text: 'Km ' + (from / 1000).toFixed(0),
+              style: {
+                fontFamily: '"Pathway Gothic One", sans-serif',
+                fontSize: '14px',
+                color: 'white'
+              }
             }
-          }
-        });
-        chart.xAxis[0].addPlotLine({
-          value: to,
-          width: 2,
-          color: '#2B4E72',
-          id: 'day-line-end',
-          label: {
-            text: 'KM ' + to.toFixed(0),
-            style: {
-              fontFamily: '"Pathway Gothic One", sans-serif',
-              fontSize: '14px',
-              color: 'white'
+          });
+          chart.xAxis[0].addPlotLine({
+            value: to,
+            width: 2,
+            color: '#2B4E72',
+            id: 'day-line-end',
+            label: {
+              x: -12,
+              text: 'KM ' + (to / 1000).toFixed(0),
+              style: {
+                fontFamily: '"Pathway Gothic One", sans-serif',
+                fontSize: '14px',
+                color: 'white'
+              }
             }
-          }
-        });
+          });
+        }
+
+        // extremesBak = chart.xAxis[0].getExtremes();
+        // chart.xAxis[0].setExtremes(from, to);
       });
 
-      $rootScope.$on('mouseOutDay', function(ev, day) {
+      var clearDayBand = function() {
         var chart = $('#elevationChart').highcharts();
         chart.xAxis[0].removePlotBand('day-band');
         chart.xAxis[0].removePlotLine('day-line-start');
         chart.xAxis[0].removePlotLine('day-line-end');
+      };
+
+      $rootScope.$on('mouseOutDay', function(ev, day) {
+        clearDayBand();
+      });
+
+      $rootScope.$on('mouseClickDay', function(ev, selectedDay) {
+        var chart = $('#elevationChart').highcharts();
+        var points = $rootScope.currentPath.points;
+        if (selectedDay) {
+          clearDayBand();
+          chart.xAxis[0].zoom(points[selectedDay.startPoint].distStart, points[selectedDay.endPoint].distStart);
+        } else {
+          chart.xAxis[0].zoom(0, points[points.length - 1].distStart);
+        }
+        chart.redraw();
       });
     });
   }
@@ -202,7 +228,7 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
     $rootScope.$watch('dayService.days', function(days) {
       if (!days)
         return;
-      var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+      ;
       var slides = $scope.slides = [];
       for (var i = 0; i < days.length; i++) {
         if (i % 7 === 0) {
@@ -211,10 +237,16 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
             index: Math.floor(i / 7)
           });
         }
+        days[i].index = i;
         slides[Math.floor(i / 7)].days.push(days[i]);
         if (days[i].isCurrentDay)
           slides[Math.floor(i / 7)].active = true;
       }
+
+      $scope.mouseClickDay = function(day) {
+        $rootScope.$emit('mouseClickDay', day);
+        console.log(day);
+      };
 
       $scope.mouseOverDay = function(day) {
         $rootScope.$emit('mouseOverDay', day);
@@ -245,6 +277,7 @@ myApp.controller('DayCarouselCtrl', ['$scope', '$rootScope',
       }, true);
 
       $scope.getMonthStr = function(month) {
+        var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
         return months[month];
       };
     });

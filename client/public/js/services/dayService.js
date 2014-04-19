@@ -11,8 +11,9 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
     var START_DATE;
 
     var getCyclistDate = function(dateString) {
+      var time = dateString ? new Date(dateString).getTime() : new Date().getTime();
       var hoursRelativeToGMT = adminOptionsService.options.hoursRelativeToGMT || 0;
-      return new Date(new Date(dateString).getTime() + hoursRelativeToGMT * 3600 * 1000);
+      return new Date(time + hoursRelativeToGMT * 3600 * 1000);
     };
 
     me.getCyclistDate = getCyclistDate;
@@ -67,7 +68,6 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
 
       me.estimatedDays = estimatedDays;
       me.days = days;
-      console.log(days);
     };
 
     var getDaysSoFar = function() {
@@ -90,8 +90,8 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
       gpsReading = gpsReadings[0];
       nyTimestamp = getCyclistDate(gpsReading.timestamp);
       days[0] = {
-        date: nyTimestamp.getDate(),
-        month: nyTimestamp.getMonth(),
+        date: nyTimestamp.getUTCDate(),
+        month: nyTimestamp.getUTCMonth(),
         firstGpsReading: gpsReading,
         startPoint: path.getClosestPointToLocation(gpsReading)
       };
@@ -99,15 +99,15 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
       for (i = 1; i < gpsReadings.length; i++) {
         gpsReading = gpsReadings[i];
         nyTimestamp = getCyclistDate(gpsReading.timestamp);
-        if (days[curIndex].date !== nyTimestamp.getDate()) {
+        if (days[curIndex].date !== nyTimestamp.getUTCDate()) {
           days[curIndex].lastGpsReading = gpsReadings[i - 1];
           days[curIndex].endPoint = path.getClosestPointToLocation(days[curIndex].lastGpsReading);
           days[curIndex].distance = points[days[curIndex].endPoint].distStart - points[days[curIndex].startPoint].distStart;
           days[curIndex].elevationGain = path.getElevationGain(days[curIndex].startPoint, days[curIndex].endPoint);
           curIndex++;
           days[curIndex] = {
-            date: nyTimestamp.getDate(),
-            month: nyTimestamp.getMonth(),
+            date: nyTimestamp.getUTCDate(),
+            month: nyTimestamp.getUTCMonth(),
             firstGpsReading: gpsReading,
             startPoint: days[curIndex - 1].endPoint
           };
@@ -118,6 +118,7 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
       days[curIndex].currentDistance = points[days[curIndex].currentPoint].distStart - points[days[curIndex].startPoint].distStart;
       days[curIndex].currentElevationGain = path.getElevationGain(days[curIndex].startPoint, days[curIndex].currentPoint);
       days[curIndex].isCurrentDay = true;
+      $rootScope.currentDay = days[curIndex];
 
 
       // return also days for which I don't have GPS readings
@@ -145,8 +146,8 @@ angular.module('myApp.services').service('dayService', ['estimationService', 'gp
             month: currentDate.getMonth(),
             distance: 0,
             elevationGain: 0,
-            startPoint: day.endPoint,
-            endPoint: day.endPoint,
+            startPoint: day.endPoint || day.startPoint,
+            endPoint: day.endPoint || day.startPoint,
             noData: true
           });
         }

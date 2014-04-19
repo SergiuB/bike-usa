@@ -17,7 +17,7 @@
             div(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")
               carousel
                 slide(ng-repeat='slide in slides', active='slide.active')
-                  .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)", ng-class="{dayTileCurrent: day.isCurrentDay, dayTileEstimated: day.isEstimate}")
+                  .dayTile.col-md-1-714(ng-repeat='day in slide.days', ng-click="mouseClickDay(day)", ng-mouseenter="mouseOverDay(day)", ng-mouseleave="mouseOutDay(day)", ng-class="{dayTileSelected: day.isSelected, dayTileCurrent: day.isCurrentDay, dayTileEstimated: day.isEstimate}")
                     .dayTileInner
                       .col-md-5.noPadding
                         p.day Day {{(slide.index * 7) + $index + 1}}

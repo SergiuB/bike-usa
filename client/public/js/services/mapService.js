@@ -85,6 +85,10 @@ angular.module('myApp.services').service('mapService', [
       map.fitBounds(bounds);
     };
 
+    me.panTo = function(map, point) {
+      map.panTo(me.createLatLng(point));
+    };
+
     me.createBounds = function(points) {
       var bounds = new google.maps.LatLngBounds();
       points.forEach(function(point) {

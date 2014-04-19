@@ -253,8 +253,13 @@
 }
 
 .dayTileSelected .dayTileInner {
-  background: #0e83cd;
+  background: #2790B0;
 }
+
+.dayTileSelected {
+  opacity: 1;
+}
+
 
 .dayStats {
   padding-top: 5px;
@@ -476,4 +481,12 @@ nav a:focus {
     margin-left: 5px;
     padding-top: 5px;
   }
+}
+
+.lightText {
+  color: white;
+}
+
+.indented {
+  margin-left: 20px;
 }

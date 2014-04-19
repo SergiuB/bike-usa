@@ -32,6 +32,14 @@ var myApp = angular.module('myApp', [
         templateUrl: 'partials/signup',
         controller: "SignupCtrl"
       }).
+      when('/overview', {
+        templateUrl: 'partials/overview',
+        controller: "OverviewCtrl"
+      }).
+      when('/gpx', {
+        templateUrl: 'partials/gpx',
+        controller: "OverviewCtrl"
+      }).
       otherwise({
         redirectTo: '/'
       });

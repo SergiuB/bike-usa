@@ -52,6 +52,16 @@ angular.module('myApp.services').service('mapService', [
       return new google.maps.Marker(theOptions);
     };
 
+    me.createTweetMarker = function(options) {
+      var theOptions = {
+        icon: {
+          url: 'resource/icons/marker-twitter.png'
+        }
+      };
+      angular.extend(theOptions, options);
+      return new google.maps.Marker(theOptions);
+    };
+
     me.createMarker = function(options) {
       return new google.maps.Marker(options);
     };

@@ -267,6 +267,7 @@
 
 .carousel-control {
   width: 30px;
+  cursor: pointer; cursor: hand; 
 }
 .carousel-control .icon-prev {
   margin-top: -22px

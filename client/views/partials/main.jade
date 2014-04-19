@@ -11,7 +11,7 @@
         .wrapper.mapAndChart
           #map(ng-controller='MapCtrl')
             script(type="text/ng-template", id="twitterLargeImage.html")
-              img(src="{{url}}")
+              img(src="{{url}}:large")
           .elevationChart(id="elevationChart", ng-controller='ChartCtrl')
           .carouselContainer(ng-controller='DayCarouselCtrl')
             div(ng-mouseenter="mouseOverWeek()", ng-mouseleave="mouseOutWeek()")

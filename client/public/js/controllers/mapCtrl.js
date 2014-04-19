@@ -1,7 +1,7 @@
 'use strict';
 
-myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', '$http', '$modal', 'adminOptionsService', 'currentStatus',
-  function($scope, $rootScope, mapService, mapFeatureConfig, $http, $modal, adminOptionsService, currentStatus) {
+myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureConfig', '$http', '$modal', 'adminOptionsService', 'currentStatus', 'blogService', 
+  function($scope, $rootScope, mapService, mapFeatureConfig, $http, $modal, adminOptionsService, currentStatus, blogService) {
     var me = this;
     // This is the minimum zoom level that we'll allow
     var minZoomLevel = 4;
@@ -164,32 +164,32 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
         var content = "<p>" + 'Day ' + (selectedDay.index + 1) + " - " + getMonthStr(selectedDay.month) + " " + selectedDay.date + "</p>";
         content += "<br>";
         if (selectedDay.isCurrentDay) {
-          content += "<p>" + "This is the day of my last known location." + "</p>";
-          content += "<p>" + "If this date is not today it means no updates were received from my phone for a while." + "</p>";
-          content += "<br>";
           content += "<p>" + "Day numbers:" + "</p>";
           content += "<p class=\"indented\">" + "Distance so far: " + Math.floor(selectedDay.currentDistance / 1000) + " km</p>";
           content += "<p class=\"indented\">" + "Altitude gain so far: " + Math.floor(selectedDay.currentElevationGain) + " m</p>";
-          content += "<p class=\"indented\">" + "Estimated total distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
-          content += "<p class=\"indented\">" + "Estimated total altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+          content += "<p class=\"indented\">" + "Estimated distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p class=\"indented\">" + "Estimated altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+          content += "<br>";
+          content += "<p>" + "This is the day of my last known location." + "</p>";
+          content += "<p>" + "If this date is not today it means no updates were received from my phone for a while." + "</p>";
         } else if (selectedDay.isEstimate) {
-          content += "<p>" + "This is just an estimation, don't take it too seriously :)</p>";
-          content += "<br>";
-          content += "<p>" + "Day numbers:" + "</p>";
-          content += "<p class=\"indented\">" + "Estimated total distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
-          content += "<p class=\"indented\">" + "Estimated total altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+          content += "<p>" + "Estimated distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p>" + "Estimated altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
         } else {
-          //content += "<p>" + "What happened today: </p>";
-          content += "<br>";
-          content += "<p>" + "Day numbers:" + "</p>";
-          content += "<p class=\"indented\">" + "Distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
-          content += "<p class=\"indented\">" + "Altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
+          content += "<p>" + "Distance: " + Math.floor(selectedDay.distance / 1000) + " km</p>";
+          content += "<p>" + "Altitude gain: " + Math.floor(selectedDay.elevationGain) + " m</p>";
 
           if (!selectedDay.distance) {
             content += "<br>";
             content += "<p>" + "Looks like a day for chillin' or maybe no location updates received." + "</p>";
           }
         }
+        var blogEntry = blogService.getBlogEntryUrl(selectedDay.date, selectedDay.month);
+        if (blogEntry) {
+            content += "<br>";
+            content += "<p>" + "Blog entry:" + "</p>";
+            content += "<a href='" + blogEntry + "' target='_blank'>" + blogEntry + "</a>";
+          }
         dayInfoWindow.setContent(content);
         dayInfoWindow.open(map);
       }
@@ -380,7 +380,7 @@ myApp.controller('MapCtrl', ['$scope', '$rootScope', 'mapService', 'mapFeatureCo
           longitude: coord[1]
         });
       }
-      var marker = mapService.createMarker({
+      var marker = mapService.createTweetMarker({
         position: tweetPoint,
         //map: map
       });

@@ -1,0 +1,12 @@
+form(action='/api/blogPosts', method='post')
+    div
+        label Date (0-31):
+        input(type='text', name='date')
+    div
+        label Month (0-11):
+        input(type='text', name='month')
+    div
+        label Blog post URL:
+        input(type='text', name='url')
+    div
+        input(type='submit', value='Send')

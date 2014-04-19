@@ -28,6 +28,10 @@ var myApp = angular.module('myApp', [
         templateUrl: 'partials/login',
         controller: "LoginCtrl"
       }).
+      when('/blogEntry', {
+        templateUrl: 'partials/blogEntry',
+        controller: "BlogPostCtrl"
+      }).
       when('/signup', {
         templateUrl: 'partials/signup',
         controller: "SignupCtrl"
@@ -38,7 +42,7 @@ var myApp = angular.module('myApp', [
       }).
       when('/gpx', {
         templateUrl: 'partials/gpx',
-        controller: "OverviewCtrl"
+        controller: "GpxCtrl"
       }).
       otherwise({
         redirectTo: '/'

@@ -35,7 +35,7 @@ angular.module('myApp.services').service('currentStatus', ['$http',
       var me = this;
       var updateStatus = function() {
         me.getLastGpsReading();
-        setTimeout(updateStatus, 6000);
+        setTimeout(updateStatus, 60000);
       };
       updateStatus();
     };

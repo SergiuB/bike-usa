@@ -19,6 +19,12 @@ exports.index = function(req, res) {
 
 exports.create = function(req, res) {
 	var coordinate = req.body;
+
+	if (!coordinate.latitude || !coordinate.longitude) {
+		res.send(500, 'Null latitude or longitude');
+		return;
+	}
+
 	var gpsReading = new GpsReading();
 
 	gpsReading.latitude = coordinate.latitude;
